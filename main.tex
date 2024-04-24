@@ -1,0 +1,314 @@
+\documentclass[a4paper]{zreport}
+\usepackage[colorlinks,
+            linkcolor=blue,
+            anchorcolor=green,
+            citecolor=red,]{hyperref}
+
+\usepackage{setspace}
+\setstretch{1.5}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{diagbox}
+\usepackage{enumitem}
+\setlist[enumerate,1]{font=\textup,labelsep=1.5mm,topsep=0mm,itemsep=-0.8mm}
+\setlist[enumerate,2]{font=\textup,labelsep=1.5mm,topsep=-0.8mm,itemsep=-0.8mm}
+
+% 目录居中
+\renewcommand*\contentsname{\hfill \Large{目录} \hfill}
+
+\title{基于大规模预训练CLIP模型微调的图文检索方法}
+\name{第十二届“泰迪杯”数据挖掘挑战赛 }
+
+\begin{document}
+
+%\makecover % 如果不想要封面，可以注释掉这一行
+%\makeheader
+\newpage
+
+\vphantom{\Large hello}
+
+%\vspace{3em}
+
+\begingroup
+\centering{\LARGE{\textbf{基于大规模预训练CLIP模型微调的图文检索方法}}}
+
+\vspace{3em}
+
+\centering{\Large{\textbf{摘~~要}}}
+
+\endgroup
+
+\vspace{1em}
+
+随着互联网的迅速发展，海量数据的涌现使得从大量信息中筛选出有价值内容变得日益重要。信息检索技术因此成为一项关键技术，尤其是在面对真实世界中复杂的多模态数据时。传统的信息检索模型往往只能处理单一模态数据，而现实情况通常更为复杂，涉及文本、图像等多种数据类型。为了解决这一挑战，本文提出了一种基于自然语言处理（NLP）、计算机视觉（CV）技术，以及多模态模型\textbf{CLIP（Contrastive Language-Image Pre-training）}的信息检索模型。该模型特别针对中文数据集进行了优化，通过大量数据的预训练，并在特定比赛数据集上进行微调，显著提升了检索精度，超越了部分传统中文模型的性能。
+
+本文首先对图像与文本数据进行了建模，通过预处理将异构的图像与文本信息转化为结构化的张量形式，使得基于深度学习的模型能更好地对其处理。接下来，我们对问题一的\textbf{图像检索文本}（Image-to-Text，I2T）任务与问题二的\textbf{文本检索图像}（Text-to-Image，T2I）任务进行了\textbf{统一建模}，将两大检索问题转化为\textbf{图像与文本的相似度衡量问题}，按照相似度对检索目标进行排序，以具有最高相似度的目标作为检索结果。为了度量图像文本多模态数据的相关程度，我们引入多模态模型CLIP的结构，其基于\textbf{对比学习（Contrastive Learning）}方法，训练出能够将图像和文本映射到同一嵌入空间的\textbf{图像编码器（Image Encoder）}和\textbf{文本编码器（Text Encoder）}。这一映射过程便于计算不同模态数据之间的余弦相似度，从而实现高效的图文互检索功能。
+
+具体而言，为了兼顾模型精度与效率，我们实现的CLIP模型采用\textbf{ViT-L/14}模型作为图像编码器，以及\textbf{RoBERTa}模型作为文本编码器。同时，这些编码器均经过充分预训练，显著加快了后续训练的收敛速度。接下来，我们收集了一系列高质量的公开数据集，构建了一个包含大约 2 亿图像文本对的中文多模态\textbf{预训练数据集}，并基于该数据集对所实现的CLIP模型进行预训练，得到一个\textbf{泛化性能强大的基线模型}。基于对问题的统一建模，我们的基线模型在问题一的 I2T 任务中达到了 \textbf{77.77\%} 的$R@5$精度，在问题二的 T2I 任务中达到了 \textbf{78.88\%} 的$R@5$精度。
+
+为了进一步挖掘该模型的潜力，我们针对比赛数据集（容量仅为5万），通过\textbf{图像裁剪}、\textbf{图像翻转}、\textbf{文本翻译}等方式进行数据增强，得到一个容量为40万的\textbf{增强数据集}。进而，我们使用增强数据集对预训练的CLIP基线模型进行微调。经过仅仅10个回合的微调，我们的模型便能在问题一的 I2T 任务中达到了 \textbf{88.88\%} 的$R@5$精度，在问题二的 T2I 任务中达到了 \textbf{89.99\%} 的$R@5$精度。该结果相较基线模型有着显著地提升，验证了微调策略与数据增强方法的有效性。
+
+综上，本文对图像检索文本任务与文本检索图像任务进行了统一建模，基于CLIP框架实现了一个兼顾精度与效率的多模态模型，并整合高质量公开数据集进行预训练得到泛化性能强大的基线模型。进而，我们对比赛数据集进行增强，并对基线模型微调，显著提升了特定任务下的性能表现，对中文信息检索领域具有重要的理论和实践意义。
+
+
+\vspace{0.5em}
+
+\textbf{关键词：}\medspace 多模态特征融合~~图文检索~~预训练—微调~~对比学习~~深度学习
+
+\newpage
+% 重置页码
+\setcounter{page}{1}
+\pagenumbering{Roman}
+\tableofcontents
+\newpage
+
+% 重置页码
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\linespread{1.5}
+
+\section{问题描述与假设}
+
+\subsection{问题背景}
+
+随着近年来智能终端设备和多媒体社交网络平台的飞速发展，多媒体数据呈现海量增长的趋势，使当今主流的社交网络平台充斥着海量的文本、图像等多模态媒体数据，也使得人们对不同模态数据之间互相检索的需求不断增加。有效的信息检索和分析可以大大提高平台多模态数据的利用率及用户的使用体验，而不同模态间存在显著的语义鸿沟，大大制约了海量多模态数据的分析及有效信息挖掘。因此，在海量的数据中实现跨模态信息的精准检索就成为当今学术界面临的重要挑战。图像和文本作为信息传递过程中常见的两大模态，它们之间的交互检索不仅能有效打破视觉和语言之间的语义鸿沟和分布壁垒，还能促进许多应用的发展，如跨模态检索、图像标注、视觉问答等。
+
+\textbf{图像文本检索}指的是输入某一模态的数据（例如图像），通过训练的模型自动检索出与之最相关的另一模态数据（例如文本），它包括两个方向的检索，即基于文本的图像检索和基于图像的文本检索，如图 \ref{fig:problem1} 所示。基于文本的图像检索的目的是从数据库中找到与输入句子相匹配的图像作为输出结果；基于图像的文本检索根据输入图片，模型从数据库中自动检索出能够准确描述图片内容的文字。然而，来自图像和来自文本的特征存在固有的数据分布的差异，也被称为模态间的“异构鸿沟”，使得度量图像和文本之间的语义相关性困难重重。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/problem1}
+\caption{图像文本检索}
+\label{fig:problem1}
+\end{figure}
+
+\subsection{解决问题}
+
+本赛题是利用附件 1 的数据集，选择合适方法进行图像和文本的特征提取，基于提取的
+特征数据，建立适用于\textbf{图像检索}的多模态特征融合模型和算法，以及建立适用于\textbf{文本检索}的
+多模态特征融合模型和算法。基于建立的“多模态特征融合的图像文本检索”模型，完成以
+下两个任务，并提交相关材料。
+
+\subsubsection[图像检索文本]{\textbf{图像检索文本}}
+
+基于图像检索的模型和算法，利用附件 2 中“word\_test.csv”文件的文本信息，对附件 2 的 ImageData 文件夹的图像进行图像检索，并罗列检索相似度较高的前五张图像，将结果存放在“result1.csv”文件中（模板文件详见附件4的result1.csv）。其中，ImageData文件夹中的图像 ID 详见附件 2 的“image\_data.csv”文件。
+
+\subsubsection[文本检索图像]{\textbf{文本检索图像}}
+
+基于文本检索的模型和算法，利用附件 3 中“image\_test.csv”文件提及的图像ID，对附件 3 的“word\_data.csv”文件进行文本检索，并罗列检索相似度较高的前五条文本，将结果存放在“result2.csv”文件中（模板文件见附件 4 的 result2.csv）。其中，“image\_test.csv”文件提及的图像 ID，对应的图像数据可在附件 3 的 ImageData 文件夹中获取。
+
+\subsection{评估指标}
+
+图像文本检索包括两个具体的任务，即文本检索（Image-to-Text，I2T），即针对查询图像找到相关句子；以及图像检索（Text-to-Image，T2I），即给定查询语句检索符合文本描述的图像。为了与现有方法公平地进行比较，在文本检索问题和图像检索问题中都采用了广泛使用的评价指标：召回率 Recall at K（R@K）。R@K定义为查询结果中真实结果（Ground Truth）排序在前K的比率，通常K可取值为1、5和10，计算公式如式 \eqref{RecallCalc} 所示。
+\begin{gather}
+R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\label{RecallCalc}
+\end{gather}
+
+其中，$\mathrm{GroundTruth}_{\text{total}}$表示真实匹配结果出现的总次数，$\mathrm{Matched}_{\text{top-}K}$表示在排序前 $K$ 个输出结果中出现匹配样本的次数。$R@K$ 反映了在图像检索和文本检索中模型输出前 $K$ 个结果中正确结果出现的比例。本赛题的评价标准设定 $K=5$，即评价标准为 $R@5$。
+
+\subsection{基本假设}
+
+为了构建图像文本双向检索模型，我们做出如下合理的假设：
+
+\begin{enumerate}
+\item 训练数据集中的图像文本匹配关系正确可靠；
+\item 训练集与测试集中的图像文本对的具有一致的数据分布；
+\item 测试集中，每幅图像都存在与之匹配的文本，每条文本都存在与之匹配的图像。
+\end{enumerate}
+
+\newpage
+
+\section{问题建模}
+
+\subsection{图像建模}
+
+在计算机视觉（Computer Vision，CV）领域，常用的图像表示方法是使用张量。张量是多维数组的扩展，可以表示高维数据。对于彩色图像，我们使用三维张量$x \in \mathbb{R}^{H \times W \times C}$描述。其中，$H$表示高度，$W$表示宽度，$C$表示通道数（对于常见的RGB图像，其通道数为3）。
+
+由于题目数据中的图像具有不同的长宽比、分辨率，不利于模型统一处理。于是，我们按照以下规则，对所有图像进行预处理：
+
+\begin{enumerate}
+\item 对于所有长宽比小于 2:1 的图像，将其拉伸为 1:1，使用双立方插值法（Bicubic Interpolation）下采样至 224$\times$224 分辨率。
+\item 对于所有长宽比大于 2:1 的图像，截断其长边，仅保留长宽比小于 2:1的部分，再按照规则 1. 进行处理。
+\end{enumerate}
+
+至此，我们可以将所有图像的分辨率处理为 224$\times$224，进而使用四维张量 $X \in \mathbb{R}^{N \times H \times W \times C}$ 表示整个数据集，其中$N$为图像数量，$H=W=224$，$C=3$。
+
+\subsection{文本建模}
+
+在自然语言处理（Natural Language Processing，NLP）领域，文本被视作一个由单词组成的序列。为了便于表达，将所有可能出现的单词汇集成一张表，称为词汇表（Vocabulary），其中每个单词对应一个唯一的序号（Index）。
+
+为了使用深度学习模型学习单词的语义，我们需要将每个词语用一个固定长度的向量表示，分为稀疏表示（如One-hot编码）和分布式表示（如Word2Vec）。由于稀疏表示的诸多弊端，这里我们采用单词的分布式表示。分布式表示将词转化为一个定长（设为$D_\mathrm{emb}$）、稠密并且互相存在语义关系的向量。此处的存在语义关系可以理解为：分布相似的词，是具有相同的语义的。
+
+如此一来，一切文本都能被映射为一个由定长词向量组成的序列。然而，文本中单词的数量或多或少，因此单词序列的长度无法确定，这是不利于语言建模的。为了解决这个问题，常用的方法是指定一个最大序列长度（设为 $L$），然后按以下规则处理不同长度的文本：
+
+\begin{enumerate}
+\item 对于单词数量小于$L$的文本，在其后方填充若干特殊的单词“<pad>”，使其长度达到$L$。
+\item 对于单词数量超过$L$的文本，舍弃第 $L$ 个单词后的内容。
+\end{enumerate}
+
+于是，我们可以将所有文本处理为长度为$L$的单词序列，其中每个单词被表示为一个$D_\mathrm{emb}$维向量。也就说说，一段文本可以被表示为一个形状为 $L \times D_\mathrm{emb}$的矩阵。进而，我们对数据集中所有文本进行处理，得到一个三维张量 $Y \in \mathbb{R}^{M \times L \times D_\mathrm{emb}}$，其中$M$是文本数量。
+
+\subsection{图文检索建模}
+
+为了进行图文检索（包括图像检索文本、文本检索图像），关键是定义一个匹配度函数。该函数的输入为一幅图像以及一段文本，输出为图像与文本的内容匹配程度，即$\mathrm{Match}\left(Image, Text\right) \in \left[-1, 1\right]$。其数值大小表示匹配程度，-1表示完全不匹配，1表示完全匹配。
+
+对于图像集合$X \in \mathbb{R}^{N \times H \times W \times C}$，以及文本集合$Y \in \mathbb{R}^{M \times L \times D_\mathrm{emb}}$，可以得到一个匹配度矩阵 $\mathrm{Score} \in \mathbb{R}^{N \times M}$ 表示所有“图像—文本”对的匹配情况。具体而言，$\mathrm{Score}$的定义如公式 \eqref{ScoreMatrix} 所示。
+\begin{gather}
+\mathrm{Score}\left[i,~j\right] = \mathrm{Match}\left(X_i,~Y_j\right),~1\le i \le N,~1\le j \le M.\label{ScoreMatrix}
+\end{gather}
+
+\subsubsection{图像检索文本}
+
+在图像检索文本（Image-to-Text，I2T）任务中，我们需要为每幅图像寻找与其匹配程度最高的$K$段文本。而每幅图像与$\mathrm{Score}$矩阵中的一行所对应，为了实现该目的，我们沿着行方向对$\mathrm{Score}$矩阵进行ArgSort操作，使每行的文本按照与每幅图像的匹配程度排序，并以检索形式呈现。接下来，取检索矩阵的前$K$列，得到矩阵$\mathrm{RowTop} \in \mathbb{R}^{N \times K}$，如公式 \eqref{ArgSort1} 所示，其中$\left[...\right]$表示子矩阵检索操作。
+\begin{gather}
+\mathrm{RowTop} = \mathrm{ArgSort}\left(\mathrm{Score},~dim=1\right)\left[:,~:K\right]
+\label{ArgSort1}
+\end{gather}
+
+此时，$\mathrm{RowTop}$的第$i$行对应与图像$X_i$匹配程度最高的$K$段文本的位置，则I2T任务的结果如公式 \eqref{I2T} 所示，其中 $\{...\}$ 表示集合。
+\begin{gather}
+\mathrm{I2T}\left(X_i\right) = \{Y_j\mid j \in \mathrm{RowTop}\left[i,~:\right]\}\label{I2T}
+\end{gather}
+
+\subsubsection{文本检索图像}
+
+类似的，在文本检索图像（Text-to-Image，T2I）任务中，我们需要为每段文本寻找与其匹配程度最高的$K$幅图像。而每段文本与$\mathrm{Score}$矩阵中的一列所对应，为了实现该目的，我们沿着列方向对$\mathrm{Score}$矩阵进行ArgSort操作，使每列的图像按照与每段文本的匹配程度排序，并以检索形式呈现。接下来，取检索矩阵的前$K$行，得到矩阵$\mathrm{ColTop} \in \mathbb{R}^{K \times M}$，如公式 \eqref{ArgSort2} 所示。
+\begin{gather}
+\mathrm{ColTop} = \mathrm{ArgSort}\left(\mathrm{Score},~dim=0\right)\left[:K,~:\right]
+\label{ArgSort2}
+\end{gather}
+
+此时，$\mathrm{ColTop}$的第$j$列对应与文本$Y_j$匹配程度最高的$K$幅图像的位置，则T2I任务的结果如公式 \eqref{T2I} 所示。
+\begin{gather}
+\mathrm{T2I}\left(Y_j\right) = \{X_i\mid i \in \mathrm{ColTop}\left[:,~j\right]\}\label{T2I}
+\end{gather}
+
+根据所建立的模型，我们只需实现$\mathrm{Match}\left(Image, Text\right)$函数，得到图像与文本的匹配度，即可完成I2T任务与T2I任务。下面，我们将聚焦于该函数的实现。
+
+\section{CLIP模型}
+
+CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\cite{clip}，由OpenAI在2021年提出。CLIP模型的核心思想是通过对比学习的方式，将图像和文本映射到同一个嵌入空间中，使得语义上相关的图像和文本在该空间中更接近。
+
+\subsection{对比学习}
+
+对比学习（Contrastive Learning）是一种自监督学习方法\cite{liu2021self}，它通过比较数据的不同变体或不同数据对来学习数据的表示。对比学习的核心思想是：相似的样本在表示空间中应该接近，而不相似的样本应该远离。这种方法通常用于学习数据的低维表示，使其能够捕捉数据的本质特征。
+
+对比学习的实施通常包括以下几个方面：
+\begin{enumerate}
+\item \textbf{正负样本的定义：}在对比学习中，图片特征和文本特征构成特征矩阵，该矩阵中图文相匹配为正样本，不匹配为负样本，因此特征矩阵的对角线元素均为正样本，其他元素为负样本。
+\item \textbf{相似度计算：}使用余弦相似度来表示特征之间的相似度，A、B矩阵的余弦相似度可由公式 \eqref{CosineSim} 描述。
+\begin{gather}
+\text{Cosine-Similarity}(\mathbf{A}, \mathbf{B}) = {\frac{\mathbf{A} \cdot \mathbf{B}} {\| \mathbf{A} \| \cdot \| \mathbf{B} \|}}\label{CosineSim}
+\end{gather}
+\item \textbf{损失函数：}定义一个损失函数来训练模型，使得正样本对的相似度高于负样本对的相似度。典型的损失函数包括三元组损失（Triplet Loss）、对比损失（Contrastive Loss）和交叉熵损失等。
+\end{enumerate}
+
+\subsection{模型结构}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/clip1}
+\caption{CLIP（Contrastive Language-Image Pre-training）模型结构示意图。}
+\label{fig:clip1}
+\end{figure}
+
+CLIP模型的核心思想是通过学习图像和文本之间的匹配关系来提高模型的性能。具体来说，CLIP模型包含两个主要组成部分：一个用于处理图像的CNN模型或ViT模型，和一个用于处理文本的BERT模型。这两个组件都被训练成能够将输入的信息映射到相同的嵌入空间中，并使得相似的图像和文本在嵌入空间中的距离更近。图 \ref{fig:clip1} 演示了CLIP模型的结构。
+
+在实现上，为了兼顾模型精度与效率，我们实现的CLIP模型采用\textbf{ViT-L/14}模型作为图像编码器，以及\textbf{RoBERTa}模型
+作为文本编码器。同时，这些编码器均经过充分预训练，显著加快了后续训练的收敛速度。
+
+下面，我们分别介绍使用的预训练图像编码器与文本编码器。
+
+\subsubsection{图像编码器}
+
+ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vaswani2017attention} 应用在图像分类的模型，因为其模型“简单”且效果好，可扩展性强，于是成为了Transformer在CV领域应用的里程碑著作，也引爆了后续相关研究。
+
+ViT最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破Transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果。基于该结论，我们将充分预训练的ViT模型作为CLIP模型的图像编码器，并选择参数量适中的ViT-L/14变种，以平衡精度与计算量的冲突。
+
+在推理过程中，ViT将输入图片分为多个patch（16x16），再将每个patch投影为固定长度的向量送入Transformer，后续encoder的操作和原始Transformer中完全相同。但是因为对图片分类，因此在输入序列中加入一个特殊的token，该token对应的输出即为最后的类别预测。整个流程如图 \ref{fig:vit} 所示。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/vit}
+\caption{ViT（Visual Transformer）模型结构示意图。}
+\label{fig:vit}
+\end{figure}
+
+\subsubsection{文本编码器}
+
+RoBERTa \cite{roberta} 是在论文\emph{RoBERTa: A Robustly Optimized BERT Pretraining Approach}中被提出的。此方法属于BERT的强化版本，也是BERT模型更为精细的调优版本。RoBERTa主要在三方面对之前提出的BERT做了该进，其一是模型的具体细节层面，改进了优化函数；其二是训练策略层面，改用了动态掩码的方式训练模型，证明了NSP（Next Sentence Prediction）训练策略的不足，采用了更大的Batch Size；其三是数据层面，一方面使用了更大的数据集，另一方面是使用字节级别的BPE（Bytes-level BEP ）来处理文本数据。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/bert1}
+\caption{BERT（Bidirectional Encoder Representations from Transformers）模型输入示意图。}
+\label{fig:bert1}
+\end{figure}
+
+RoBERTa在训练方面与原始BERT模型保持一致，使用类似“完形填空”的代理任务，让模型学习填补缺失词。如图 \ref{fig:bert1} 所示，输入句子中部分词被随机遮掩，替换为“[PAD]”，并在最前方添加一个特殊词汇“[CLS]”。对于缺失值填补任务，要求“[PAD]”的输出能还原原始词汇；对于分类任务，使用“[CLS]”的输出作为分类器的特征。
+
+与图像编码器类似，我们使用基于中文数据预训练的RoBERTa模型 \cite{cn-roberta} 作为CLIP的文本编码器。该策略极大地提高了CLIP模型预训练与微调的效率，使得我们能在有限的训练回合中，获得更大的精度收益。
+
+
+\subsection{训练目标}
+
+CLIP使用图像文本对作为训练标签。这里举例一个包含$N$个图像文本对的训练Batch，对提取的文本特征和图像特征进行训练的过程：
+
+\begin{enumerate}
+\item 输入图片 $\rightarrow$ 图像编码器 $\rightarrow$ 图片特征向量；输入文字 $\rightarrow$ 文字编码器 $\rightarrow$ 文字特征向量；并进行线性投射，得到相同维度；
+\item 将$N$个图像特征和$N$个文本特征两两组合，形成一个形状为$N \times N$的矩阵$s$；
+CLIP模型会预测计算出这$N^2$个图像文本对的相似度（即余弦相似度）；
+\item 对角线上的N个元素因为图像-标签对应正确被作为训练的正样本，剩下的$N(N-1)$个元素作为负样本；
+\item CLIP的训练目标是基于对比损失，最大化$N$个正样本的相似度，同时最小化$N(N-1)$个负样本的相似度。
+\end{enumerate}
+
+具体而言，对于任意一个图像文本对，CLIP的对比损失如公式 \eqref{loss_one} 所示。最后考虑所有可能存在的图像文本对，需要最小化的目标函数如公式 \eqref{loss_all} 所示。其中，$s_{i,j}$表示相似度矩阵第$i$行的第$j$列的元素，其数值含义为第$i$幅图像与第$j$段文本的相似度，由公式 \eqref{CosineSim} 计算。
+\begin{gather}
+l(i,j)=-\log\frac{\exp(s_{i,j})}{\sum_{k=1}^{N} \mathbf{1}_{\left[k \ne i\right]} \exp(s_{i,k})}\label{loss_one}\\
+\mathcal{L}=\frac{1}{2N}\sum_{k=1}^N[l(k-1,k)+l(k,k-1)]\label{loss_all}
+\end{gather}
+
+
+\subsection{模型推理}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/clip2}
+\caption{CLIP模型推理——图像检索文本}
+\label{fig:clip2}
+\end{figure}
+
+\section{数据分析与处理}
+
+\subsection{数据增强}
+
+\section{模型预训练}
+
+\subsection{数据集构建}
+
+\subsection{改进策略}
+
+\subsection{“零样本”效果}
+
+\section{模型微调}
+
+\subsection{数据集构建}
+
+\section{结果分析}
+
+
+
+\cite{*}
+
+\newpage
+
+\addcontentsline{toc}{section}{参考文献}
+
+\bibliographystyle{ieeetr}
+\bibliography{./bib/MyRefs}
+
+
+\end{document}
