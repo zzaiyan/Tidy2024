@@ -12,6 +12,14 @@
 \usepackage{subfigure}
 \usepackage{diagbox}
 \usepackage{enumitem}
+
+\usepackage{tabu}% 表格插入
+\usepackage{multirow}% 一般用以设计表格，将所行合并
+\usepackage{multicol}% 合并多列
+\usepackage{multirow}% 合并多行
+\usepackage{makecell}% 三线表-竖线
+\usepackage{booktabs}% 三线表-短细横线
+
 \setlist[enumerate,1]{font=\textup,labelsep=1.5mm,topsep=0mm,itemsep=-0.8mm}
 \setlist[enumerate,2]{font=\textup,labelsep=1.5mm,topsep=-0.8mm,itemsep=-0.8mm}
 
@@ -46,9 +54,9 @@
 
 本文首先对图像与文本数据进行了建模，通过预处理将异构的图像与文本信息转化为结构化的张量形式，使得基于深度学习的模型能更好地对其处理。接下来，我们对问题一的\textbf{图像检索文本}（Image-to-Text，I2T）任务与问题二的\textbf{文本检索图像}（Text-to-Image，T2I）任务进行了\textbf{统一建模}，将两大检索问题转化为\textbf{图像与文本的相似度衡量问题}，按照相似度对检索目标进行排序，以具有最高相似度的目标作为检索结果。为了度量图像文本多模态数据的相关程度，我们引入多模态模型CLIP的结构，其基于\textbf{对比学习（Contrastive Learning）}方法，训练出能够将图像和文本映射到同一嵌入空间的\textbf{图像编码器（Image Encoder）}和\textbf{文本编码器（Text Encoder）}。这一映射过程便于计算不同模态数据之间的余弦相似度，从而实现高效的图文互检索功能。
 
-具体而言，为了兼顾模型精度与效率，我们实现的CLIP模型采用\textbf{ViT-L/14}模型作为图像编码器，以及\textbf{RoBERTa}模型作为文本编码器。同时，这些编码器均经过充分预训练，显著加快了后续训练的收敛速度。接下来，我们收集了一系列高质量的公开数据集，构建了一个包含大约 2 亿图像文本对的中文多模态\textbf{预训练数据集}，并基于该数据集对所实现的CLIP模型进行预训练，得到一个\textbf{泛化性能强大的基线模型}。基于对问题的统一建模，我们的基线模型在问题一的 I2T 任务中达到了 \textbf{77.77\%} 的$R@5$精度，在问题二的 T2I 任务中达到了 \textbf{78.88\%} 的$R@5$精度。
+具体而言，为了兼顾模型精度与效率，我们实现的CLIP模型采用\textbf{ViT-L/14}模型作为图像编码器，以及\textbf{RoBERTa}模型作为文本编码器。同时，这些编码器均经过充分预训练，显著加快了后续训练的收敛速度。接下来，我们收集了一系列高质量的公开数据集，构建了一个包含大约 8 百万图像文本对的中文多模态\textbf{预训练数据集}，并基于该数据集对所实现的CLIP模型进行预训练，得到一个\textbf{泛化性能强大的基线模型}。基于对问题的统一建模，我们的基线模型在问题一的 I2T 任务中达到了 \textbf{77.77\%} 的R@5精度，在问题二的 T2I 任务中达到了 \textbf{78.88\%} 的R@5精度。
 
-为了进一步挖掘该模型的潜力，我们针对比赛数据集（容量仅为5万），通过\textbf{图像裁剪}、\textbf{图像翻转}、\textbf{文本翻译}等方式进行数据增强，得到一个容量为40万的\textbf{增强数据集}。进而，我们使用增强数据集对预训练的CLIP基线模型进行微调。经过仅仅10个回合的微调，我们的模型便能在问题一的 I2T 任务中达到了 \textbf{88.88\%} 的$R@5$精度，在问题二的 T2I 任务中达到了 \textbf{89.99\%} 的$R@5$精度。该结果相较基线模型有着显著地提升，验证了微调策略与数据增强方法的有效性。
+为了进一步挖掘该模型的潜力，我们针对比赛数据集（容量仅为5万），通过\textbf{图像裁剪}、\textbf{图像翻转}、\textbf{文本翻译}等方式进行数据增强，得到一个容量为40万的\textbf{增强数据集}。进而，我们使用增强数据集对预训练的CLIP基线模型进行微调。经过仅仅10个回合的微调，我们的模型便能在问题一的 I2T 任务中达到了 \textbf{88.88\%} 的R@5精度，在问题二的 T2I 任务中达到了 \textbf{89.99\%} 的R@5精度。该结果相较基线模型有着显著地提升，验证了微调策略与数据增强方法的有效性。
 
 综上，本文对图像检索文本任务与文本检索图像任务进行了统一建模，基于CLIP框架实现了一个兼顾精度与效率的多模态模型，并整合高质量公开数据集进行预训练得到泛化性能强大的基线模型。进而，我们对比赛数据集进行增强，并对基线模型微调，显著提升了特定任务下的性能表现，对中文信息检索领域具有重要的理论和实践意义。
 
@@ -57,7 +65,7 @@
 
 \textbf{关键词：}\medspace 多模态特征融合~~图文检索~~预训练—微调~~对比学习~~深度学习
 
-\newpage
+%\newpage
 % 重置页码
 \setcounter{page}{1}
 \pagenumbering{Roman}
@@ -76,7 +84,7 @@
 
 随着近年来智能终端设备和多媒体社交网络平台的飞速发展，多媒体数据呈现海量增长的趋势，使当今主流的社交网络平台充斥着海量的文本、图像等多模态媒体数据，也使得人们对不同模态数据之间互相检索的需求不断增加。有效的信息检索和分析可以大大提高平台多模态数据的利用率及用户的使用体验，而不同模态间存在显著的语义鸿沟，大大制约了海量多模态数据的分析及有效信息挖掘。因此，在海量的数据中实现跨模态信息的精准检索就成为当今学术界面临的重要挑战。图像和文本作为信息传递过程中常见的两大模态，它们之间的交互检索不仅能有效打破视觉和语言之间的语义鸿沟和分布壁垒，还能促进许多应用的发展，如跨模态检索、图像标注、视觉问答等。
 
-\textbf{图像文本检索}指的是输入某一模态的数据（例如图像），通过训练的模型自动检索出与之最相关的另一模态数据（例如文本），它包括两个方向的检索，即基于文本的图像检索和基于图像的文本检索，如图 \ref{fig:problem1} 所示。基于文本的图像检索的目的是从数据库中找到与输入句子相匹配的图像作为输出结果；基于图像的文本检索根据输入图片，模型从数据库中自动检索出能够准确描述图片内容的文字。然而，来自图像和来自文本的特征存在固有的数据分布的差异，也被称为模态间的“异构鸿沟”，使得度量图像和文本之间的语义相关性困难重重。
+\textbf{图像文本检索}指的是输入某一模态的数据（例如图像），通过训练的模型自动检索出与之最相关的另一模态数据（例如文本），它包括两个方向的检索，即基于文本的图像检索和基于图像的文本检索，如图 \ref{fig:problem1} 所示。基于文本的图像检索的目的是从数据库中找到与输入句子相匹配的图像作为输出结果；基于图像的文本检索根据输入图像，模型从数据库中自动检索出能够准确描述图像内容的文字。然而，来自图像和来自文本的特征存在固有的数据分布的差异，也被称为模态间的“异构鸿沟”，使得度量图像和文本之间的语义相关性困难重重。
 
 \begin{figure}[h]
 \centering
@@ -107,7 +115,7 @@
 R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\label{RecallCalc}
 \end{gather}
 
-其中，$\mathrm{GroundTruth}_{\text{total}}$表示真实匹配结果出现的总次数，$\mathrm{Matched}_{\text{top-}K}$表示在排序前 $K$ 个输出结果中出现匹配样本的次数。$R@K$ 反映了在图像检索和文本检索中模型输出前 $K$ 个结果中正确结果出现的比例。本赛题的评价标准设定 $K=5$，即评价标准为 $R@5$。
+其中，$\mathrm{GroundTruth}_{\text{total}}$表示真实匹配结果出现的总次数，$\mathrm{Matched}_{\text{top-}K}$表示在排序前 $K$ 个输出结果中出现匹配样本的次数。$R@K$ 反映了在图像检索和文本检索中模型输出前 $K$ 个结果中正确结果出现的比例。本赛题的评价标准设定 $K=5$，即评价标准为 R@5。
 
 \subsection{基本假设}
 
@@ -198,7 +206,7 @@ CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\
 
 对比学习的实施通常包括以下几个方面：
 \begin{enumerate}
-\item \textbf{正负样本的定义：}在对比学习中，图片特征和文本特征构成特征矩阵，该矩阵中图文相匹配为正样本，不匹配为负样本，因此特征矩阵的对角线元素均为正样本，其他元素为负样本。
+\item \textbf{正负样本的定义：}在对比学习中，图像特征和文本特征构成特征矩阵，该矩阵中图文相匹配为正样本，不匹配为负样本，因此特征矩阵的对角线元素均为正样本，其他元素为负样本。
 \item \textbf{相似度计算：}使用余弦相似度来表示特征之间的相似度，A、B矩阵的余弦相似度可由公式 \eqref{CosineSim} 描述。
 \begin{gather}
 \text{Cosine-Similarity}(\mathbf{A}, \mathbf{B})
@@ -231,7 +239,7 @@ ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vas
 
 ViT最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破Transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果。基于该结论，我们将充分预训练的ViT模型作为CLIP模型的图像编码器，并选择参数量适中的ViT-L/14变种，以平衡精度与计算量的冲突。
 
-在推理过程中，ViT将输入图片分为多个patch（16x16），再将每个patch投影为固定长度的向量送入Transformer，后续encoder的操作和原始Transformer中完全相同。但是因为对图片分类，因此在输入序列中加入一个特殊的token，该token对应的输出即为最后的类别预测。整个流程如图 \ref{fig:vit} 所示。
+在推理过程中，ViT将输入图像分为多个patch（16x16），再将每个patch投影为固定长度的向量送入Transformer，后续encoder的操作和原始Transformer中完全相同。但是因为对图像分类，因此在输入序列中加入一个特殊的token，该token对应的输出即为最后的类别预测。整个流程如图 \ref{fig:vit} 所示。
 
 \begin{figure}[h]
 \centering
@@ -261,7 +269,7 @@ RoBERTa在训练方面与原始BERT模型保持一致，使用类似“完形填
 CLIP使用图像文本对作为训练标签。这里举例一个包含$N$个图像文本对的训练Batch，对提取的文本特征和图像特征进行训练的过程：
 
 \begin{enumerate}
-\item 输入图片 $\rightarrow$ 图像编码器 $\rightarrow$ 图片特征向量；输入文字 $\rightarrow$ 文字编码器 $\rightarrow$ 文字特征向量；并进行线性投射，得到相同维度；
+\item 输入图像 $\rightarrow$ 图像编码器 $\rightarrow$ 图像特征向量；输入文字 $\rightarrow$ 文字编码器 $\rightarrow$ 文字特征向量；并进行线性投射，得到相同维度；
 \item 将$N$个图像特征和$N$个文本特征两两组合，形成一个形状为$N \times N$的矩阵$s$；
 CLIP模型会预测计算出这$N^2$个图像文本对的相似度（即余弦相似度）；
 \item 对角线上的N个元素因为图像-标签对应正确被作为训练的正样本，剩下的$N(N-1)$个元素作为负样本；
@@ -275,13 +283,13 @@ l(i,j)=-\log\frac{\exp(s_{i,j})}{\sum_{k=1}^{N} \mathbf{1}_{\left[k \ne i\right]
 \end{gather}
 
 
-\subsection{模型推理}
+\subsection{模型推理} \label{infer}
 
-基于上述损失函数，我们在大规模数据集上对CLIP模型训练后，得到的权重可以用于推理。我们以问题一的I2T任务为例，演示CLIP进行图像检索文本的过程。
+基于上述损失函数，我们在大规模数据集上对CLIP模型训练后，得到的权重可以用于推理。这里，我们以问题一的I2T任务为例，演示CLIP进行图像检索文本推理的过程。
 
 \subsubsection{数据预处理}
 
-设我们进行I2T任务的目标图像为$Image_1$，潜在文本集合为$\{Text_i \mid 1 \le i \le N\}$。模型首先对目标图像进行预处理，通过裁剪、缩放和插值操作，得到结构化的图像 $X \in \mathbb{R}^{1 \times H \times W \times C}$。对于原始类别标签，我们将其拼接至模板“这是一张\{XX\}图片”中，使其更符合中文语法习惯，如图 \ref{fig:clip2} 所示。接下来，对拼接后的文本进行处理，将其分词后映射至词汇表，通过填充与截断操作控制序列长度，并转换为训练得到的词向量矩阵，得到结构化的文本$Y \in \mathbb{R}^{N \times L \times D_\mathrm{emb}}$。
+设我们进行I2T任务的目标图像为$Image_1$，潜在文本集合为$\{Text_i \mid 1 \le i \le N\}$。模型首先对目标图像进行预处理，通过裁剪、缩放和插值操作，得到结构化的图像 $X \in \mathbb{R}^{1 \times H \times W \times C}$。对于原始类别标签，我们将其拼接至模板“这是一张\{XX\}图像”中，使其更符合中文语法习惯，如图 \ref{fig:clip2} 所示。接下来，对拼接后的文本进行处理，将其分词后映射至词汇表，通过填充与截断操作控制序列长度，并转换为训练得到的词向量矩阵，得到结构化的文本$Y \in \mathbb{R}^{N \times L \times D_\mathrm{emb}}$。
 
 \subsubsection{图像文本编码}
 
@@ -307,24 +315,137 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 
 \section{数据分析与处理}
 
+\subsection{数据统计}
+
+\subsection{数据清洗}
+
 \subsection{数据增强}
+
+\subsubsection{图像数据增强}
+图像数据增强方法主要分为两类，一种类型的增强涉及数据的空间/几何变换，如裁剪和调整大小、旋转和翻转。 另一种类型的增强涉及外观变换，例如颜色失真（包括颜色下降、亮度、对比度、饱和度、色调）、高斯模糊和 Sobel 过滤。
+
+SimCLR用实验证明了数据增强操作的组合对学习好的表征是至关重要的，而且无监督的对比学习受益于比监督学习更强的数据增强。因此，我们所使用的数据增强操作是这几种方法的组合：
+\begin{enumerate}
+\item 随机裁剪和调整大小；
+\item 随机旋转；
+\item 随机翻转；
+\item ……。
+\end{enumerate}
+
+\subsubsection{文本数据增强}
+
+为了能在不改变原文语义的情况下，生成一定数量的训练语料文本，同时提升模型的泛化性能、干扰波动的能力，我们主要使用以下几种文本数据增强方法：
+
+\begin{enumerate}
+\item \textbf{同义词替换：}在这种方法中，我们从句子中随机取出一个词，将其替换为对应的同义词。
+\item \textbf{翻译互转：}将文本翻译成另外一种语言，然后再翻译回来。同时，我们也可以翻译成多个语言，从而得到多条回译样本。
+\end{enumerate}
+
+\subsection{数据集划分}
+
+为了进行训练与测试，我们对“附件1”中的训练集进行了划分，将其中的90\%作为真正的训练集，剩下的10\%作为验证集（这样恰好能使得验证集的大小等于“附件2”和附件“3”中测试集的大小，更加贴近测试环境），用来评估模型的训练效果。根据验证集上的评估指标，我们可以更准确地掌握模型的性能表现，并量化其泛化能力，避免对训练集数据过拟合。具体而言，表 \ref{tbl:DataSplit} 详细说明了数据集的划分情况，以及各个子集的组成。
+
+\begin{table}[h]
+\centering
+\tabcolsep=1.5em
+\renewcommand\arraystretch{1.5}
+\caption{\textbf{比赛数据集}划分明细}
+\vspace{1em}
+\begin{tabular}{c|c|c|c|c}
+    \Xhline{2pt}
+    数据来源 & \multicolumn{2}{c|}{\textbf{“附件1”}} & \multicolumn{1}{c|}{\textbf{“附件2”}} & 
+    \multicolumn{1}{c}{\textbf{“附件3”}}\\
+    
+%    \Xcline{1-1}{1pt}
+    \Xhline{1.5pt}
+
+    数据类型 & \textbf{训练集} & \textbf{验证集} & \textbf{I2T 测试集} & \textbf{T2I 测试集} \\
+    \Xhline{0.4pt}
+    图像数量 & {45000} & {5000} & {50000（样本）} & {5000（搜索空间）} \\
+    \Xhline{0.4pt}
+    文本数量 & {45000} & {5000} & {5000（搜索空间）} & {50000（样本）} \\
+
+    \Xhline{2pt}
+\end{tabular} \label{tbl:DataSplit}
+\end{table}
+
 
 \section{模型预训练}
 
 \subsection{数据集构建}
 
-
-
 \subsection{改进策略}
 
-\subsection{“零样本”效果}
+\subsubsection{累计梯度下降}
+
+\subsubsection{掩码特征学习}
+
+\subsubsection{FlashAttention}
+
+\subsection{模型预训练}
+
+
+
+\subsection{“零样本”测试}
+
+在仅基于公共数据集预训练，\textbf{不使用任何比赛数据集相关信息}的情况下，对模型进行性能评估，称为“零样本”测试。具体而言，我们按照章节 \ref{infer} 中描述的方法，使用基于公共数据集预训练的模型，在比赛数据集的\textbf{I2T测试集}和\textbf{T2I测试集}上进行测试。
+
+为了进行更全面的性能评估，我们除了计算题目所要求的R@5指标，还分别计算了R@1、R@10指标，以及各个指标的均值MR。
+
+\subsubsection{图像检索文本}
+
+按照章节 \ref{infer} 中描述的方法，我们使用基于公共数据集预训练的模型，在比赛数据集的I2T测试集上进行测试。
+
+\begin{table}[h]
+\centering
+\tabcolsep=1.5em
+\renewcommand\arraystretch{1.5}
+\caption{\textbf{“零样本”}测试结果——\textbf{图像检索文本}}
+\vspace{1em}
+\begin{tabular}{c|cccc}
+    \Xhline{2pt}
+
+    回合 $\backslash$ 评估指标 & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MR} \\
+    
+    \Xcline{1-1}{0.4pt}
+    \Xhline{1.5pt}
+
+    1 epoch & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    2 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    3 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    4 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    5 epochs & {0.5156} & {0.7094} & {0.7712} & {0.6654} \\
+    
+    \Xhline{2pt}
+\end{tabular} \label{tbl:Zero1}
+\end{table}
+
+\subsubsection{文本检索图像}
+
+
 
 \section{模型微调}
 
 \subsection{数据集构建}
 
+\subsection{模型微调}
+
+\subsection{微调结果测试}
+
+
+
+
 \section{结果分析}
 
+\subsection{预训练结果}
+
+\subsection{微调结果}
+
+\subsection{有效性验证}
 
 
 \cite{*}
