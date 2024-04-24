@@ -201,7 +201,10 @@ CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\
 \item \textbf{正负样本的定义：}在对比学习中，图片特征和文本特征构成特征矩阵，该矩阵中图文相匹配为正样本，不匹配为负样本，因此特征矩阵的对角线元素均为正样本，其他元素为负样本。
 \item \textbf{相似度计算：}使用余弦相似度来表示特征之间的相似度，A、B矩阵的余弦相似度可由公式 \eqref{CosineSim} 描述。
 \begin{gather}
-\text{Cosine-Similarity}(\mathbf{A}, \mathbf{B}) = {\frac{\mathbf{A} \cdot \mathbf{B}} {\| \mathbf{A} \| \cdot \| \mathbf{B} \|}}\label{CosineSim}
+\text{Cosine-Similarity}(\mathbf{A}, \mathbf{B})
+= {\frac{\mathbf{A} \cdot \mathbf{B}} {\| \mathbf{A} \| \cdot \| \mathbf{B} \|}}
+= \frac{\mathbf{A}}{\| \mathbf{A} \|} \cdot \frac{\mathbf{B}}{\| \mathbf{B} \|}
+\label{CosineSim}
 \end{gather}
 \item \textbf{损失函数：}定义一个损失函数来训练模型，使得正样本对的相似度高于负样本对的相似度。典型的损失函数包括三元组损失（Triplet Loss）、对比损失（Contrastive Loss）和交叉熵损失等。
 \end{enumerate}
@@ -274,12 +277,33 @@ l(i,j)=-\log\frac{\exp(s_{i,j})}{\sum_{k=1}^{N} \mathbf{1}_{\left[k \ne i\right]
 
 \subsection{模型推理}
 
+基于上述损失函数，我们在大规模数据集上对CLIP模型训练后，得到的权重可以用于推理。我们以问题一的I2T任务为例，演示CLIP进行图像检索文本的过程。
+
+\subsubsection{数据预处理}
+
+设我们进行I2T任务的目标图像为$Image_1$，潜在文本集合为$\{Text_i \mid 1 \le i \le N\}$。模型首先对目标图像进行预处理，通过裁剪、缩放和插值操作，得到结构化的图像 $X \in \mathbb{R}^{1 \times H \times W \times C}$。对于原始类别标签，我们将其拼接至模板“这是一张\{XX\}图片”中，使其更符合中文语法习惯，如图 \ref{fig:clip2} 所示。接下来，对拼接后的文本进行处理，将其分词后映射至词汇表，通过填充与截断操作控制序列长度，并转换为训练得到的词向量矩阵，得到结构化的文本$Y \in \mathbb{R}^{N \times L \times D_\mathrm{emb}}$。
+
+\subsubsection{图像文本编码}
+
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/clip2}
 \caption{CLIP模型推理——图像检索文本}
 \label{fig:clip2}
 \end{figure}
+
+对于结构化的图像与文本数据，使用CLIP的图像编码器与文本编码器，将其映射至同维度的编码向量。为了计算方便，我们对所有编码向量进行归一化，得到归一化图像编码$I \in \mathbb{R}^{1 \times D_\mathrm{model}}$以及归一化文本编码$T \in \mathbb{R}^{N \times D_\mathrm{model}}$。对于任意图像$Image_i$和文本$Text_j$，其归一化编码的计算过程分别如公式 \eqref{NormImage} 和公式 \eqref{NormText} 所示。通过进行归一化，我们可以使用向量的点乘操作来替代此前的余弦相似度计算。
+\begin{gather}
+I_i = \frac{r_i}{\|r_i\|}\label{NormImage}\quad \text{其中，}
+r_i = \mathrm{ImageEncoder}\left(Image_i\right)\\
+\vspace{1em}
+T_j = \frac{h_j}{\|h_j\|}\label{NormText}\quad \text{其中，}
+h_j = \mathrm{TextEncoder}\left(Text_j\right)
+\end{gather}
+
+\subsubsection{相似度计算}
+
+接下来，对目标图像编码$I_1$与所有文本编码$T$进行点乘，得到目标图像与各段文本的相似度数组$\mathrm{Sims} = \{I_1 \cdot T_i \mid 1 \le i \le N\}$。最后，取相似度数组Sims的最大值，与之对应的文本即为最佳匹配文本。类似的，若取最大的$K$个值，则可得到最佳的$K$段匹配文本。图 \ref{fig:clip2} 演示了CLIP模型进行图像检索文本推理的完整流程。
 
 \section{数据分析与处理}
 
@@ -288,6 +312,8 @@ l(i,j)=-\log\frac{\exp(s_{i,j})}{\sum_{k=1}^{N} \mathbf{1}_{\left[k \ne i\right]
 \section{模型预训练}
 
 \subsection{数据集构建}
+
+
 
 \subsection{改进策略}
 
