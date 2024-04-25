@@ -215,11 +215,11 @@ R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\
 
 \subsubsection{文件特征}
 
-\subsubsection{文本特征}
+\subsubsection{文本数据特征}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/wordcloud}
+\includegraphics[width=0.95\linewidth]{figures/wordcloud}
 \caption{文本数据词云图。}
 \label{fig:wordcloud}
 \end{figure}
@@ -251,7 +251,7 @@ R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\
 \label{fig:rawimage}
 \end{figure}
 
-按照章节 \ref{modeling} 中提到的方法，我们对每张图像应用拉伸、随机裁剪等操作，将所有图像的分辨率处理为统一的$224 \times 224$，并对数据进行归一化，以便于后续任务的进行。处理后的结果如图 \ref{fig:cleanimage} 所示。
+按照章节 \ref{modeling} 中提到的方法，我们对每张图像应用随机裁剪、拉伸、双立方下采样等操作，将所有图像的分辨率处理为统一的$224 \times 224$，并对数据进行归一化，以便于后续任务的进行。处理后的结果如图 \ref{fig:cleanimage} 所示。
 
 \begin{figure}[h]
 \centering
@@ -261,6 +261,18 @@ R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\
 \end{figure}
 
 \subsubsection{文本异常值处理}
+
+观察给出的文本数据，可以发现这些文本的信息比较杂乱，质量参差不齐，其中包含了很多特殊字符、无用的空白空格和换行、连续出现的标点符号等。
+
+我们使用正则表达式（regex）来识别、替换或删除这些文本中存在的噪声。对文本数据进行清洗有助于确保数据准确、可靠和一致，以用于分析和建模。清洗后的文本样例如图 \ref{fig:cleantext} 所示。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/clean_text}
+\caption{处理后的文本示例。}
+\label{fig:cleantext}
+\end{figure}
+
 
 \subsection{数据增强}
 
@@ -323,19 +335,19 @@ SimCLR用实验证明了数据增强操作的组合对学习好的表征是至�
 
 \subsection{压缩与序列化}
 
-\paragraph{图像压缩}
+\subsubsection{图像压缩}
 为了加快文件读取速度，我们对数据增强后的图像进行JPEG压缩，在保证90\%以上的图像质量前提下，极大地减小了图像的体积。经统计，图像的体积相比未压缩能减少75\%。
 
-\paragraph{图像序列化}
+\subsubsection{图像序列化}
 为保证文件处理效率，我们不是将图片以大量的小文件方式存放，而是将训练/验证/测试图片先经过压缩，再将其字节码序列化为base64格式，分别存放在tsv文件中，每行表示一张图片，包含图片id和图片的base64编码。形式如下：$$\text{“138213	/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQ”}$$
 这样，便可以避免单独存储大量的图片小文件，而是直接存储一个文本文件。
 
-\paragraph{文本序列化}
+\subsubsection{文本序列化}
 我们将文本信息和图文对的匹配关系保存在JSONL文件中。每行是一个JSON对象，包含文本id、文本内容和匹配的图片id列表。形式如下：
 $$\text{“\{"text\_id": 8428, "text": "高级感托特包斜挎", "image\_ids": [10345, 17602]\}”}$$
 这样，就可以方便地将文本和图片进行匹配和关联。
 
-\paragraph{LMDB内存索引}
+\subsubsection{LMDB内存索引}
 LMDB 全称为 Lightning Memory-Mapped Database，就是非常快的内存映射型数据库，LMDB使用内存映射文件，可以提供更好的输入/输出性能，对于用于神经网络的大型数据集( 比如 ImageNet )，可以将其存储在 LMDB 中。为了进一步提高模型训练时随机读取数据的效率，我们还需要将tsv和jsonl文件一起序列化，转换为内存索引的LMDB数据库文件，方便训练时的随机读取。
 
 \section{多模态特征融合方法研究}
@@ -477,6 +489,8 @@ CLIP模型的核心思想是通过学习图像和文本之间的匹配关系来�
 ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vaswani2017attention} 应用在图像分类的模型，因为其模型“简单”且效果好，可扩展性强，于是成为了Transformer在CV领域应用的里程碑著作，也引爆了后续相关研究。
 
 ViT最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破Transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果。基于该结论，我们将充分预训练的ViT模型作为CLIP模型的图像编码器，并选择参数量适中的ViT-L/14变种，以平衡精度与计算量的冲突。
+
+具体而言，我们基于HuggingFace平台，获取了在ImageNet数据集中充分预训练的ViT-L/14网络的权重，用来初始化CLIP模型的图像编码器，以获得更佳的迁移学习性能。
 
 
 \subsubsection{文本编码器}
@@ -710,6 +724,8 @@ O=P^{\mathrm{dropped}}V\in\mathbb{R}^{N\times d}
 \subsubsection{微调结果}
 
 \subsubsection{有效性验证}
+
+\subsection{模型总结}
 
 
 \cite{*}
