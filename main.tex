@@ -129,7 +129,7 @@ R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\
 
 \newpage
 
-\section{问题建模}
+\section{问题建模} \label{modeling}
 
 多模态图文检索的本质上是对图像和文本两种模态的信息进行压缩编码，压缩编码过程可以利用传统方法也可以利用深度学习方法，但最终会得到图像和文本的压缩编码嵌入embedding。
 
@@ -210,26 +210,57 @@ R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\
 \subsection{数据统计}
 
 对爬取的数据进行统计分析是数据预处理的关键步骤，这有助于了解数据集的整体特性和潜在的问题。在统计时，我们不仅关注文件的数量和大小，还细致地分析了图像的平均分辨率，以及分辨率和长宽比的分布情况。
+
 首先，我们对数据集内所有图像文件的数量进行了计数，以获得数据集的规模。接着，我们计算了所有文件的总大小，以及单个文件的平均大小。
+
+\subsubsection{文件特征}
+
+\subsubsection{文本特征}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/wordcloud}
+\caption{文本数据词云图。}
+\label{fig:wordcloud}
+\end{figure}
+
+
+\subsubsection{分辨率统计}
+
+\subsubsection{长宽比统计}
+
 在分辨率方面，我们计算了数据集中所有图像的平均分辨率。有助于我们了解数据集中图像的多样性以及是否存在某些分辨率的图像过于集中或稀缺的情况。
+
 长宽比是图像宽度与高度的比值，它对于图像的显示和处理非常重要。我们计算了数据集中每张图像的长宽比，并分析了其分布情况，以识别是否有异常值或一致的趋势。例如，某些图像可能具有非常宽或非常高的纵横比，这可能会对模型训练产生影响。
+
 为了进一步的数据清洗和质量控制，我们检查了图像的可读性，排除了损坏或无法解码的文件。我们还对文本数据进行了清洗，移除了重复项和包含无关信息的条目。
+
 通过这些细致的数据统计和分析，我们能够确保数据集的质量，为后续的数据清洗、增强和模型训练提供了坚实的基础。
 
 \subsection{数据清洗}
-对爬取的数据进行数据清洗，以得到更高质量的数据集，便于模型的预训练。
+对附件中的数据进行数据清洗，以得到更高质量的数据集，便于模型的预训练。
 
-\begin{enumerate}
-\item \textbf{数据筛选：}
-从网络爬取的数据中可能包含不相关或质量低下的图像和文本对。通过设置一定的标准，例如图像的分辨率、文本的长度和可读性，筛选掉不符合要求的数据。
-\item \textbf{数据去重： }
-数据集中可能存在重复的图像-文本对，这会影响模型训练的效果。通过去除重复项可以提高数据的唯一性和多样性。
-\item \textbf{错误修正：}
-自动爬取的数据可能包含标签错误或不准确的文本描述。可以识别并修正这些错误。
-\item \textbf{避免偏见：}
-数据集分布可能存在偏移，比如某些类别的样本数量过多或过少，需要进行删减或扩充来平衡数据分布。
-\end{enumerate}
+\subsubsection{图像规格统一化}
 
+浏览ImageData文件夹中的图像数据可以发现，这些图像的大小不一，而且有些图像的像素很高，不能直接传入神经网络中进行训练，必须把他们处理成统一的大小。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/raw_image}
+\caption{原始图像文件概览。}
+\label{fig:rawimage}
+\end{figure}
+
+按照章节 \ref{modeling} 中提到的方法，我们对每张图像应用拉伸、随机裁剪等操作，将所有图像的分辨率处理为统一的$224 \times 224$，并对数据进行归一化，以便于后续任务的进行。处理后的结果如图 \ref{fig:cleanimage} 所示。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/clean_image}
+\caption{处理后的图像文件概览。}
+\label{fig:cleanimage}
+\end{figure}
+
+\subsubsection{文本异常值处理}
 
 \subsection{数据增强}
 
@@ -290,6 +321,22 @@ SimCLR用实验证明了数据增强操作的组合对学习好的表征是至�
 \end{tabular} \label{tbl:DataSplit}
 \end{table}
 
+\subsection{压缩与序列化}
+
+\paragraph{图像压缩}
+为了加快文件读取速度，我们对数据增强后的图像进行JPEG压缩，在保证90\%以上的图像质量前提下，极大地减小了图像的体积。经统计，图像的体积相比未压缩能减少75\%。
+
+\paragraph{图像序列化}
+为保证文件处理效率，我们不是将图片以大量的小文件方式存放，而是将训练/验证/测试图片先经过压缩，再将其字节码序列化为base64格式，分别存放在tsv文件中，每行表示一张图片，包含图片id和图片的base64编码。形式如下：$$\text{“138213	/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQ”}$$
+这样，便可以避免单独存储大量的图片小文件，而是直接存储一个文本文件。
+
+\paragraph{文本序列化}
+我们将文本信息和图文对的匹配关系保存在JSONL文件中。每行是一个JSON对象，包含文本id、文本内容和匹配的图片id列表。形式如下：
+$$\text{“\{"text\_id": 8428, "text": "高级感托特包斜挎", "image\_ids": [10345, 17602]\}”}$$
+这样，就可以方便地将文本和图片进行匹配和关联。
+
+\paragraph{LMDB内存索引}
+LMDB 全称为 Lightning Memory-Mapped Database，就是非常快的内存映射型数据库，LMDB使用内存映射文件，可以提供更好的输入/输出性能，对于用于神经网络的大型数据集( 比如 ImageNet )，可以将其存储在 LMDB 中。为了进一步提高模型训练时随机读取数据的效率，我们还需要将tsv和jsonl文件一起序列化，转换为内存索引的LMDB数据库文件，方便训练时的随机读取。
 
 \section{多模态特征融合方法研究}
 
@@ -297,23 +344,19 @@ SimCLR用实验证明了数据增强操作的组合对学习好的表征是至�
 
 每一种信息的来源或者形式，都可以称为一种模态。例如，人有触觉，听觉，视觉，嗅觉；信息的媒介，有语音、视频、文字等；多种多样的传感器，如雷达、红外、加速度计等。以上的每一种都可以称为一种模态。相较于图像、语音、文本等多媒体(Multi-media)数据划分形式，“模态”是一个更为细粒度的概念，同一媒介下可存在不同的模态。 比如我们可以把两种不同的语言当做是两种模态，甚至在两种不同情况下采集到的数据集，亦可认为是两种模态。
 
-在本题目中，我们需要对图像—文本，这两种模态的数据特征进行融合。
+在本题目中，我们需要对——图像与文本，这两种模态的数据特征进行融合。
 
 \subsection{算法选择}
 
-在完成上述任务分析和数据的预处理之后，我们首先可以确定任务的解决方案是基于深度学习的多模态特征融合，不同于传统图像处理和传统机器学习算法与简单神经网络的实现，近些年来基于深度学习的多模态模型针对各种复杂应用场景表现性能更好。
+多模态检索任务的核心是对多模态数据相似度的度量。在同一维度空间下，人们可以通过欧氏距离、闵式距离等方式来计算两个向量之间的距离。因此，为了比较异构数据的相似度,一个通用的方法是将它们映射到同一个公共表示空间进行相似度的学习。我们首先可以确定任务的解决方案是基于深度学习的多模态特征融合，不同于传统图像处理和传统机器学习算法与简单神经网络的实现，近些年来基于深度学习的多模态模型针对各种复杂应用场景表现性能更好。
 
-在多模态领域，当前的主流模型是基于对比学习的大规模预训练模型。其代表便是CLIP模型。
+在多模态领域，当前的主流模型是基于对比学习的大规模预训练模型。其代表便是CLIP模型。CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\cite{clip}，由OpenAI在2021年提出。CLIP模型的核心思想是通过对比学习的方式，将图像和文本映射到同一个嵌入空间中，使得语义上相关的图像和文本在该空间中更接近。
 
-CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\cite{clip}，由OpenAI在2021年提出。CLIP模型的核心思想是通过对比学习的方式，将图像和文本映射到同一个嵌入空间中，使得语义上相关的图像和文本在该空间中更接近。
-
-这里简单介绍一下概念。
+为了更好地理解所使用的改进CLIP模型，下面对相关模型以及使用到的技术进行分别介绍。
 
 \subsection{背景知识}
 
 \subsubsection{对比学习}
-
-多模态检索任务的核心是对多模态数据相似度的度量。在同一维度空间下，人们可以通过欧氏距离、闵式距离等方式来计算两个向量之间的距离。因此，为了比较异构数据的相似度,一个通用的方法是将它们映射到同一个公共表示空间进行相似度的学习。
 
 对比学习（Contrastive Learning）是一种自监督学习方法\cite{liu2021self}，它通过学习数据的相似性和差异性来学习特征的一般表示。其采用的具体思想是将样例和与它语义相似的样本（正样本）及与它语义不相似的样本（负样本）进行对比，通过设计模型结构和对比损失，使语义相近的样本对应的表示在表示空间更接近，语义不相近的例子对应的表示距离更远，以达到类似聚类的效果，如图 \ref{fig:cl1} 所示。
 
@@ -324,7 +367,7 @@ CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\
 \label{fig:cl1}
 \end{figure}
 
-对比学习的实施通常包括以下几个方面：
+\paragraph{对比学习的实施通常包括以下几个方面：}
 \begin{enumerate}
 \item \textbf{正负样本的定义：}在对比学习中，图像特征和文本特征构成特征矩阵，该矩阵中图文相匹配为正样本，不匹配为负样本，因此特征矩阵的对角线元素均为正样本，其他元素为负样本。
 \item \textbf{相似度计算：}使用余弦相似度来表示特征之间的相似度，A、B矩阵的余弦相似度可由公式 \eqref{CosineSim} 描述。
@@ -334,14 +377,65 @@ CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\
 = \frac{\mathbf{A}}{\| \mathbf{A} \|} \cdot \frac{\mathbf{B}}{\| \mathbf{B} \|}
 \label{CosineSim}
 \end{gather}
-\item \textbf{损失函数：}定义一个损失函数来训练模型，使得正样本对的相似度高于负样本对的相似度。典型的损失函数包括三元组损失（Triplet Loss）、对比损失（Contrastive Loss）和交叉熵损失等。
+\item \textbf{损失函数：}定义一个损失函数来训练模型，使得正样本对的相似度高于负样本对的相似度。典型的损失函数包括三元组损失（Triplet Loss）、对比损失（Contrastive Loss）和交叉熵损失等。公式 \eqref{NCE-Loss} 展示了常用的InfoNCE损失函数的表达式。
+\begin{gather}
+L_{I}=L_\mathrm{InfoNCE}(z_{i}^{I},z_{i}^{T})=-\frac{1}{N}\Sigma_{i=1}^{N}log\frac{exp(sim(z_{i}^{I},z_{i}^{T})/\tau)}{\Sigma_{j=1}^{N}exp(sim(z_{i}^{I},z_{j}^{T})/\tau)}\label{NCE-Loss}
+\end{gather}
 \end{enumerate}
 
 \subsubsection{卷积神经网络（CNN）}
 
+卷积神经网络（Convolutional Neural Networks, CNN）这个概念的提出可以追溯到二十世纪80-90年代，但是有那么一段时间这个概念被“雪藏”了，因为当时的硬件和软件技术比较落后，而随着各种深度学习理论相继被提出以及数值计算设备的高速发展，卷积神经网络得到了快速发展。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/CNN1}
+\caption{卷积神经网络前向过程示意图。}
+\label{fig:cnn1}
+\end{figure}
+
+卷积神经网络是一种带有卷积结构的深度神经网络，卷积结构可以减少深层网络占用的内存量，其三个关键的操作，其一是局部感受野，其二是权值共享，其三是 pooling 层，有效的减少了网络的参数个数，缓解了模型的过拟合问题。图 \ref{fig:cnn1} 形象地演示了卷积神经网络识别手写数字的推理过程。
+
+\paragraph{卷积神经网络的整体架构可以总结如下：}
+
+\begin{enumerate}
+\item 卷积神经网络是一种多层的监督学习神经网络，隐含层的卷积层和池采样层是实现卷积神经网络特征提取功能的核心模块。该网络模型通过采用梯度下降法最小化损失函数对网络中的权重参数逐层反向调节，通过频繁的迭代训练提高网络的精度。
+\item 卷积神经网络的低隐层是由卷积层和最大池采样层交替组成，高层是全连接层对应传统多层感知器的隐含层和逻辑回归分类器。
+\item 第一个全连接层的输入是由卷积层和子采样层进行特征提取得到的特征图像。
+\item 最后一层输出层是一个分类器，可以采用逻辑回归，Softmax 回归甚至是支持向量机对输入图像进行分类。
+\end{enumerate}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/imagenet}
+\caption{ImageNet历届的冠军模型。}
+\label{fig:imagenet}
+\end{figure}
+
+卷积神经网络再次兴起后，在几年时间内不断地打破ImageNet比赛的最高记录，如图 \ref{fig:imagenet} 所示。具体而言，输入图像统计和滤波器进行卷积之后，提取该局部特征，一旦该局部特征被提取出来之后，它与其他特征的位置关系也随之确定下来了，每个神经元的输入和前一层的局部感受野相连，每个特征提取层都紧跟一个用来求局部平均与二次提取的计算层，也叫特征映射层，网络的每个计算层由多个特征映射平面组成，平面上所有的神经元的权重相等。通常将输入层到隐藏层的映射称为一个特征映射，也就是通过卷积层得到特征提取层，经过 pooling 之后得到特征映射层。
+
+卷积神经网络的核心思想就是局部感受野、是权值共享和pooling层，以此来达到简化网络参数并使得网络具有一定程度的位移、尺度、缩放、非线性形变稳定性。pooling层对图像进行下采样，可以减少数据处理量同时保留有用信息，采样可以混淆特征的具体位置，因为某个特征找出来之后，它的位置已经不重要了，我们只需要这个特征和其他特征的相对位置，可以应对形变和扭曲带来的同类物体的变化。
+
 \subsubsection{Transformer}
 
-\subsubsection{Visual Transformer}
+Transformer是一种“编码器—解码器”架构，由编码器(encoder)和解码器(decoder)组成，其都是多头自注意力模块的叠加。其中，input sequence分成两部分，分别为源(input)输入序列和目标(output)输出序列。前者输入编码器，后者输入解码器，两个序列均需进行embedding表示并加入位置信息。
+
+
+\subsubsection{Vision Transformer}
+
+ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vaswani2017attention} 应用在图像分类的模型，因为其模型“简单”且效果好，可扩展性强，于是成为了Transformer在CV领域应用的里程碑著作，也引爆了后续相关研究。通过在多个基准数据集上的实验对比，表明了ViT可以获得与当时最优卷积神经网络相美的结果。
+
+与传统的卷积神经网络不同，ViT使用自注意力机制代替卷积操作来提取图像特征。由于 Transformer需要的是类似于单词序列的一维输入信号，而图像本身为二维信号，因此在 ViT中，图像被划分成一组固定大小的图像块(patch)，每个图像块都被看作是一个序列中的一个元素，然后这些序列元素会被输入到Transformer 模型中，进行特征提取和分类，如图 \ref{fig:vit} 所示。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/vit}
+\caption{ViT（Vision Transformer）模型结构示意图。}
+\label{fig:vit}
+\end{figure}
+
+后续 encoder 的操作和原始 Transformer 中完全相同。但是因为对图片分类，因此在输入序列中加入一个特殊的 token，该token 对应的输出即为最后的类别预测。这种序列化的方式可以使得 VT 模型更好地处理全局视觉信息，同时也可以避免卷积神经网络中存在的参数共享限制。ViT 的训练过程可以使用预训练和微调两个阶段。在预训练阶段，VT会使用大量未标记的图像数据来学习视觉特征，而在微调阶段，则会使用少量标记的图像数据来对模型进行微调和分类任务的训练。ViT已经在例如图像分类、目标检测、语义分割等多个视觉任务中取得了很好的表现。 作者根据模型大小(包括“Base”、“Large”和“Huge”)和图像块大小提供了一系列变体,例如 ViT-B/16 表示输入的图像块分辨率是16x16,型号是“Base”其中，Transformer 的序列长度与图像块大小的平方成反比,因此图像块大小越小的模型计算成本越高。
+
 
 \subsubsection{词向量模型}
 
@@ -349,9 +443,18 @@ CLIP（Contrastive Language-Image Pre-training）是一个跨模态学习模型\
 
 单词到向量（Word2Vec）是一种通过对输入语料中的单词进行学习，学习其相互关系，从而生成向量表示的模型。其基本思想是通过学习单词在上下文中的分布来捕捉其语义信息。有两种策略可以实现Word2Vec模型:一个是连续词袋模型（Continuous Bag of Words，CBOW），CBOW模型是从周围的单词预测中心单词的概率。
 
-另一个实现单词到向量的策略是采用跳字模型（Skip-gram），这个模型是从中心单词预测周围单词的概率，可以通过学习大规模文本数据的词汇共现关系，将每个单词表示成一个固定长度的向量。单词表示的全局向量（Global Vectors for Word Representation，Glove）旨在通过学习单词的全局共现信息来捕捉词语之间的语义关系。与Word2Vec中的模型不同，GloVe是在全局语料库中对所有单词对的共现信息进行建模，而不是基于局部的上下文信息来学习词向量。其优点在于能够同时利用全局的词频信息和局部的上下文信息，因此得到的词向量具有较好的语义表示能力。
+另一个实现单词到向量的策略是采用跳字模型（Skip-gram），这个模型是从中心单词预测周围单词的概率，可以通过学习大规模文本数据的词汇共现关系，将每个单词表示成一个固定长度的向量。单词表示的全局向量（Global Vectors for Word Representation，Glove）旨在通过学习单词的全局共现信息来捕捉词语之间的语义关系。
+
+与Word2Vec中的模型不同，GloVe是在全局语料库中对所有单词对的共现信息进行建模，而不是基于局部的上下文信息来学习词向量。其优点在于能够同时利用全局的词频信息和局部的上下文信息，因此得到的词向量具有较好的语义表示能力。
 
 \subsubsection{BERT}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/bert1}
+\caption{BERT（Bidirectional Encoder Representations from Transformers）模型输入示意图。}
+\label{fig:bert1}
+\end{figure}
 
 \subsection{模型结构}
 
@@ -375,27 +478,12 @@ ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vas
 
 ViT最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破Transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果。基于该结论，我们将充分预训练的ViT模型作为CLIP模型的图像编码器，并选择参数量适中的ViT-L/14变种，以平衡精度与计算量的冲突。
 
-在推理过程中，ViT将输入图像分为多个patch（16x16），再将每个patch投影为固定长度的向量送入Transformer，后续encoder的操作和原始Transformer中完全相同。但是因为对图像分类，因此在输入序列中加入一个特殊的token，该token对应的输出即为最后的类别预测。整个流程如图 \ref{fig:vit} 所示。
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.9\linewidth]{figures/vit}
-\caption{ViT（Visual Transformer）模型结构示意图。}
-\label{fig:vit}
-\end{figure}
 
 \subsubsection{文本编码器}
 
 RoBERTa \cite{roberta} 是在论文\emph{RoBERTa: A Robustly Optimized BERT Pretraining Approach}中被提出的。此方法属于BERT的强化版本，也是BERT模型更为精细的调优版本。RoBERTa主要在三方面对之前提出的BERT做了该进，其一是模型的具体细节层面，改进了优化函数；其二是训练策略层面，改用了动态掩码的方式训练模型，证明了NSP（Next Sentence Prediction）训练策略的不足，采用了更大的Batch Size；其三是数据层面，一方面使用了更大的数据集，另一方面是使用字节级别的BPE（Bytes-level BEP ）来处理文本数据。
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/bert1}
-\caption{BERT（Bidirectional Encoder Representations from Transformers）模型输入示意图。}
-\label{fig:bert1}
-\end{figure}
-
-RoBERTa在训练方面与原始BERT模型保持一致，使用类似“完形填空”的代理任务，让模型学习填补缺失词。如图 \ref{fig:bert1} 所示，输入句子中部分词被随机遮掩，替换为“[PAD]”，并在最前方添加一个特殊词汇“[CLS]”。对于缺失值填补任务，要求“[PAD]”的输出能还原原始词汇；对于分类任务，使用“[CLS]”的输出作为分类器的特征。
+RoBERTa在训练方面与原始BERT模型保持一致，使用类似“完形填空”的代理任务，让模型学习填补缺失词。输入句子中部分词被随机遮掩，替换为“[PAD]”，并在最前方添加一个特殊词汇“[CLS]”。对于缺失值填补任务，要求“[PAD]”的输出能还原原始词汇；对于分类任务，使用“[CLS]”的输出作为分类器的特征。
 
 与图像编码器类似，我们使用基于中文数据预训练的RoBERTa模型 \cite{cn-roberta} 作为CLIP的文本编码器。该策略极大地提高了CLIP模型预训练与微调的效率，使得我们能在有限的训练回合中，获得更大的精度收益。
 
@@ -451,7 +539,33 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 
 \subsection{改进策略}
 
-\subsubsection{累计梯度下降}
+\subsubsection{梯度累积（Gradient Accumulation）}
+
+在深度学习训练的时候，数据的batch size大小受到GPU内存限制，batch size大小会影响模型最终的准确性和训练过程的性能。在GPU内存不变的情况下，模型越来越大，那么这就意味着数据的batch size只能缩小。然而，有研究表示主流的对比学习模型通常batch size越大，训练过程越平稳，最终的性能表现也越好。
+
+通常，当一块GPU的内存不足时，可以采用多GPU进行分布式训练。将一个大的Batch均摊到多块GPU上，计算完梯度后再汇总，进行梯度下降，如图 \ref{fig:grad} 所示。然而，分布式训练会带来额外的通讯与同步开销，且成本高昂。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/grad}
+\caption{分布式训练示意图。}
+\label{fig:grad}
+\end{figure}
+
+
+这个时候，梯度累积（Gradient Accumulation）可以作为一种简单的解决方案来解决这个问题。梯度累积是一种不需要额外硬件资源就可以增加批量样本数量（Batch Size）的训练技巧。这是一个通过时间换空间的优化措施，它将多个Batch训练数据的梯度进行累积，在达到指定累积次数后，使用累积梯度统一更新一次模型参数，以达到一个较大Batch Size的模型训练效果。累积梯度等于多个Batch训练数据的梯度的平均值。
+
+所谓梯度累积过程，其实很简单，我们梯度下降所用的梯度，实际上是多个样本算出来的梯度的平均值，以batch\_size=1024为例，你可以一次性算出1024个样本的梯度然后平均，我也可以每次算64个样本的平均梯度，然后缓存累加起来，算够了16次之后，然后把总梯度除以16，然后才执行参数更新。当然，必须累积到了16次之后，用16次的平均梯度才去更新参数，不能每算64个就去更新一次，不然就是batch\_size=64了。该过程可以由以下列表描述：
+
+\begin{enumerate}
+\item 正向传播，出入数据，得到预测结果;
+\item 根据预测结果与label，计算损失值;
+\item 利用损失进行反向传播，计算参数梯度;
+\item 重复上面步骤，不清空梯度，将梯度累加;
+\item 梯度累加达到固定次数之后，更新参数，然后将梯度清零.
+\end{enumerate}
+
+总结来讲，梯度累积就是每计算一个batch的梯度，不进行清零，而是做梯度的累加，当累加到一定的次数（accumulation\_steps）之后，再更新网络参数，然后将梯度清零。通过这种参数延迟更新的手段，可以实现与采用大batch size相近的效果。在平时的实验过程中，我一般会采用梯度累加技术，大多数情况下，采用梯度累加训练的模型效果，要比采用小batch size训练的模型效果要好很多。
 
 \subsubsection{掩码特征学习}
 
@@ -466,12 +580,35 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 \label{fig:mask}
 \end{figure}
 
+综上，FLIP使用类似MAE模型的掩码输入策略，减少了编码序列的长度，极大地节省了显存的消耗量，使得我们可以使用更大的batch size进行训练，以获得更佳的泛化性能。
 
 
 \subsubsection{FlashAttention}
 
+在标准注意力实现中，注意力的性能主要受限于内存带宽，是内存受限的。频繁地从HBM中读写 $\mathbb{R}^{N \times N}$ 的矩阵是影响性能的主要瓶颈。稀疏近似和低秩近似等近似注意力方法虽然减少了计算量FLOPs，但对于内存受限的操作，运行时间的瓶颈是从HBM中读写数据的耗时，减少计算量并不能有效地减少运行时间（wall-clock time）。针对内存受限的标准注意力，Flash Attention是IO感知的，目标是避免频繁地从HBM中读写数据。图 \ref{fig:flash} 以一个金字塔的形式，形象地说明了GPU中各存储器的IO效率差异。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\linewidth]{figures/flash}
+\caption{GPU中的IO速度金字塔。}
+\label{fig:flash}
+\end{figure}
 
 
+从GPU显存效率分级来看，SRAM的读写速度比HBM高一个数量级，但内存大小要小很多。通过kernel融合的方式，将多个操作融合为一个操作，利用高速的SRAM进行计算，可以减少读写HBM的次数，从而有效减少内存受限操作的运行时间。但SRAM的内存大小有限，不可能一次性计算完整的注意力，因此必须进行分块计算，使得分块计算需要的内存不超过SRAM的大小。
+
+Flash Attention的作者将多头注意力的计算抽象为以下操作：
+\begin{gather}
+S=\tau QK^{\top}\in\mathbb{R}^{N\times N} \\
+S^\text{masked }=MASK(S)\in\mathbb{R}^{N\times N} \\
+P=\mathrm{softmax}\left(S^{\mathrm{masked}}\right)\in\mathbb{R}^{N\times N} \\
+P^{\mathrm{dropped}}=\mathrm{dropout} (P,p_{\mathrm{drop}} )\in\mathbb{R}^{N\times N} \\
+O=P^{\mathrm{dropped}}V\in\mathbb{R}^{N\times d} 
+\end{gather}
+
+为了提高运算效率，在Flash Attention算法中，并没有将$\mathbf{S}\text{、}\mathbf{P}$写入HBM中去，而是通过分块写入到HBM中去，存储前向传递的 softmax 归一化因子，在后向传播中快速重新计算片上注意力，这比从HBM中读取中间注意力矩阵的标准方法更快。即使由于重新计算导致 FLOPS 增加，但其运行速度更快并且使用更少的内存（序列长度线性），主要是因为大大减少了 HBM 访问量。
+
+简而言之，Flash Attention实现了不使用中间注意力矩阵，通过存储归一化因子来减少HBM内存的消耗，同时减少了HBM访问量，使得Attention计算过程中在IO方面的开销大大减少，从而提高了前向运算的速度，并降低了显存的开销。
 
 \section{实验与结果分析}
 
@@ -526,7 +663,33 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 
 \paragraph{文本检索图像}
 
+\begin{table}[h]
+\centering
+\tabcolsep=1.5em
+\renewcommand\arraystretch{1.5}
+\caption{\textbf{“零样本”}测试结果——\textbf{图像检索文本}}
+\vspace{1em}
+\begin{tabular}{c|cccc}
+    \Xhline{2pt}
 
+    回合 $\backslash$ 评估指标 & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MR} \\
+    
+    \Xcline{1-1}{0.4pt}
+    \Xhline{1.5pt}
+
+    1 epoch & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    2 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    3 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    4 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    \Xhline{0.4pt}
+    5 epochs & {0.5156} & {0.7094} & {0.7712} & {0.6654} \\
+    
+    \Xhline{2pt}
+\end{tabular} \label{tbl:Zero2}
+\end{table}
 
 \subsection{模型微调}
 
