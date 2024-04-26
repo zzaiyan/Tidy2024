@@ -212,33 +212,94 @@ R@K=\frac{\mathrm{Matched}_{\text{top-}K}}{\mathrm{GroundTruth}_{\text{total}}}\
 
 \subsection{数据统计}
 
-对爬取的数据进行统计分析是数据预处理的关键步骤，这有助于了解数据集的整体特性和潜在的问题。在统计时，我们不仅关注文件的数量和大小，还细致地分析了图像的平均分辨率，以及分辨率和长宽比的分布情况。
+对收集的数据进行统计是数据预处理的关键步骤，这有助于提前了解数据集的整体特性和潜在的问题。在图像数据中，我们统计了\textbf{图像的大小}、\textbf{分辨率}、\textbf{长宽比}的分布情况，同时统计了文本数据的\textbf{长度范围}、并使用\textbf{词云图}对词频进行了可视化。
 
-首先，我们对数据集内所有图像文件的数量进行了计数，以获得数据集的规模。接着，我们计算了所有文件的总大小，以及单个文件的平均大小。
 
-\subsubsection{文件特征}
+\subsubsection{图像数据特征}
+
+\begin{table}[h]
+	\centering
+	\renewcommand\arraystretch{1.5}
+	\caption{\textbf{比赛数据集}图像大小分布}
+	\begin{tabular}{lccccccc}
+		\Xhline{1pt}
+		大小（KB） & (0, 50] & (50, 200] & (200, 500] & (500, 1000] &(1000, 5000] & (5000, 10000] & (10000, 15000] \\
+		\Xhline{1pt}
+		图像数量 & 51716 & 47056 & 4366 & 1085 &  727 & 49 & 1 \\
+		\Xhline{1pt}
+		占比 & {49.25}\% & {44.82}\% & {4.16}\% & {1.03}\% & {0.69}\% & {0.05}\% & {9.52E-04}\%  
+		\\
+		\Xhline{1pt}
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.95\linewidth]{figures/size_distribution.pdf}
+	\caption{\textbf{比赛数据集}图像大小柱状图}
+	\label{fig:size_distribution.pdf}
+\end{figure}
+
+从图像大小分布图可以看出数据集中图像大多集中于(0, 200]区间,
+
+\begin{table}[h]
+	\centering
+	\renewcommand\arraystretch{1.5}
+	\caption{\textbf{比赛数据集}图像分辨率分布}
+	\begin{tabular}{lccccccc}
+		\Xhline{1pt}
+		分辨率（MB） & (0, 0.5] & (0.5, 1] & (1, 5] & (5, 10] & (10, 20] & (20, 40] &
+		(40, 80] \\ 
+		\Xhline{1pt}
+		图像数量 & 62894 & 30288 & 10342 & 869 & 508 & 92 & 7 \\
+		\Xhline{1pt}
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.95\linewidth]{figures/pixel_distribution.pdf}
+	\caption{\textbf{比赛数据集}图像分辨率柱状图}
+	\label{fig:pixel_distribution.pdf}
+\end{figure}
+
+\begin{table}[h]
+	\centering
+	\tabcolsep=1.5em
+	\renewcommand\arraystretch{1.5}
+	\caption{\textbf{比赛数据集}图像长宽比分布}
+	\begin{tabular}{lccccc}
+		\Xhline{1pt}
+		长宽比 & (0, 0.5] & (0.5, 1] & (1, 1.5] & (1.5, 2] & (2, 3] \\
+		\Xhline{1pt}
+		图像数量 & 1113 & 22120 & 42117 & 34900 & 4750 \\
+		\Xhline{1pt}
+	\end{tabular}
+\end{table}
+
 
 \subsubsection{文本数据特征}
+
+\begin{table}[h]
+	\centering
+	\tabcolsep=1.5em
+	\renewcommand\arraystretch{1.5}
+	\caption{\textbf{比赛数据集}文本长度分布}
+	\begin{tabular}{ccc}
+		\Xhline{1pt}
+		最大长度 & 最小长度 & 平均长度 \\
+		\Xhline{1pt}
+		38 & 2 & 23 \\
+		\Xhline{1pt}
+	\end{tabular}
+1\end{table}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/wordcloud}
-\caption{文本数据词云图。}
+\caption{文本数据词云图}
 \label{fig:wordcloud}
 \end{figure}
-
-
-\subsubsection{分辨率统计}
-
-\subsubsection{长宽比统计}
-
-在分辨率方面，我们计算了数据集中所有图像的平均分辨率。有助于我们了解数据集中图像的多样性以及是否存在某些分辨率的图像过于集中或稀缺的情况。
-
-长宽比是图像宽度与高度的比值，它对于图像的显示和处理非常重要。我们计算了数据集中每张图像的长宽比，并分析了其分布情况，以识别是否有异常值或一致的趋势。例如，某些图像可能具有非常宽或非常高的纵横比，这可能会对模型训练产生影响。
-
-为了进一步的数据清洗和质量控制，我们检查了图像的可读性，排除了损坏或无法解码的文件。我们还对文本数据进行了清洗，移除了重复项和包含无关信息的条目。
-
-通过这些细致的数据统计和分析，我们能够确保数据集的质量，为后续的数据清洗、增强和模型训练提供了坚实的基础。
 
 \subsection{数据清洗}
 对附件中的数据进行数据清洗，以得到更高质量的数据集，便于模型的预训练。
@@ -380,7 +441,7 @@ LMDB 全称为 Lightning Memory-Mapped Database，就是非常快的内存映射
 
 对比学习（Contrastive Learning）是一种自监督学习方法\cite{liu2021self}，它通过学习数据的相似性和差异性来学习特征的一般表示。其采用的具体思想是将样例和与它语义相似的样本（正样本）及与它语义不相似的样本（负样本）进行对比，通过设计模型结构和对比损失，使语义相近的样本对应的表示在表示空间更接近，语义不相近的例子对应的表示距离更远，以达到类似聚类的效果，如图 \ref{fig:cl1} 所示。
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.75\linewidth]{figures/cl1}
 \caption{对比学习示意图。}
@@ -436,6 +497,8 @@ L_{I}=L_\mathrm{InfoNCE}(z_{i}^{I},z_{i}^{T})=-\frac{1}{N}\Sigma_{i=1}^{N}log\fr
 
 卷积神经网络的核心思想就是局部感受野、是权值共享和pooling层，以此来达到简化网络参数并使得网络具有一定程度的位移、尺度、缩放、非线性形变稳定性。pooling层对图像进行下采样，可以减少数据处理量同时保留有用信息，采样可以混淆特征的具体位置，因为某个特征找出来之后，它的位置已经不重要了，我们只需要这个特征和其他特征的相对位置，可以应对形变和扭曲带来的同类物体的变化。
 
+然而，正因为卷积神经网络拥有极佳的局部感受野，更倾向于提取局部特征，因此会产生极大的归纳偏置。在小规模数据集上，CNN的归纳偏置能帮助模型更快地收敛至一个相对不错的结果。但当面对更大规模的数据集、更复杂的任务时，这种归纳偏置会使得模型难以达到更高的精度。
+
 \subsubsection{Transformer}
 
 Transformer是一种“编码器—解码器”架构，由编码器(encoder)和解码器(decoder)组成，其都是多头自注意力模块的叠加。其中，input sequence分成两部分，分别为源(input)输入序列和目标(output)输出序列。前者输入编码器，后者输入解码器，两个序列均需进行embedding表示并加入位置信息。
@@ -455,6 +518,55 @@ ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vas
 \end{figure}
 
 后续 encoder 的操作和原始 Transformer 中完全相同。但是因为对图片分类，因此在输入序列中加入一个特殊的 token，该token 对应的输出即为最后的类别预测。这种序列化的方式可以使得 VT 模型更好地处理全局视觉信息，同时也可以避免卷积神经网络中存在的参数共享限制。ViT 的训练过程可以使用预训练和微调两个阶段。在预训练阶段，VT会使用大量未标记的图像数据来学习视觉特征，而在微调阶段，则会使用少量标记的图像数据来对模型进行微调和分类任务的训练。ViT已经在例如图像分类、目标检测、语义分割等多个视觉任务中取得了很好的表现。 作者根据模型大小(包括“Base”、“Large”和“Huge”)和图像块大小提供了一系列变体,例如 ViT-B/16 表示输入的图像块分辨率是16x16,型号是“Base”其中，Transformer 的序列长度与图像块大小的平方成反比,因此图像块大小越小的模型计算成本越高。
+Transformer 编码器内部结构如图\ref{fig:encoder}所示。
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=1]{figures/encoder}
+	\caption{Transformer Encoder 结构示意图}
+	\label{fig:encoder}
+\end{figure}
+
+具体原理如下
+\textbf{计算查询（Query）、键（Key）、值（Value）：}
+输入序列首先通过三个不同的线性变换生成查询（Q）、键（K）、值（V）。
+\begin{equation}
+	Q = \mathbf{XW}^Q, \quad K = \mathbf{XW}^K, \quad V = \mathbf{XW}^V
+\end{equation}
+
+\textbf{计算注意力分数：} 
+
+对于序列中的每个元素（以查询$i$为例），计算它对序列中所有元素（以键$j$为例）的注意力分数。注意力分数的计算公式为：
+\begin{equation}
+	\text{Score}(i, j) = \frac{Q_i K_j^T}{\sqrt{d_k}}
+\end{equation}
+
+\textbf{计算注意力权重：} 
+
+使用 softmax 函数将注意力分数转换为权重：
+\begin{equation}
+	\alpha_{ij} = \frac{\exp(\text{Score}(i, j))}{\sum_{k}\exp(\text{Score}(i, k))}
+\end{equation}
+
+\textbf{计算加权的值：}
+\begin{equation}
+	O_i = \sum_{j} \alpha_{ij} V_j 
+\end{equation}
+
+\textbf{输出自注意力层的结果：}
+\begin{equation}
+	O = \text{Concat}(O_1, O_2, ..., O_N)
+\end{equation}
+
+\textbf{多头自注意力（Multi-Head Self-Attention）：}
+
+Transformer 模型进一步扩展了自注意力机制，通过“多头”自注意力来并行处理信息。在多头自注意力中，输入序列被分割成多个“头”，每个头独立地计算自注意力，最后将所有头的输出拼接起来，再通过一个线性层进行处理。公式如下：
+\begin{equation}
+	\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, ..., \text{head}_h)W^O
+\end{equation}
+其中每个头的计算为：
+\begin{equation}
+	\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+\end{equation}
 
 
 \subsubsection{词向量模型}
@@ -469,16 +581,29 @@ ViT \cite{dosovitskiy2020image} 是Google团队提出的将Transformer \cite{vas
 
 \subsubsection{BERT}
 
-\begin{figure}[h]
+BERT 来自 Google 的论文Pre-training of Deep Bidirectional Transformers for Language Understanding，BERT 是“Bidirectional Encoder Representations from Transformers”的首字母缩写，整体是一个自编码语言模型（Autoencoder LM），并且其设计了两个任务来预训练该模型。
+
+第一个任务是采用 MaskLM 的方式来训练语言模型，通俗地说就是在输入一句话的时候，随机地选一些要预测的词，然后用一个特殊的符号[MASK]来代替它们，之后让模型根据所给的标签去学习这些地方该填的词。
+
+第二个任务在双向语言模型的基础上额外增加了一个句子级别的连续性预测任务，即预测输入 BERT 的两段文本是否为连续的文本，引入这个任务可以更好地让模型学到连续的文本片段之间的关系。
+
+BERT 模型通过对 Masked LM 任务和 Next Sentence Prediction 任务进行联合训练，使模型输出的每个字 / 词的向量表示都能尽可能全面、准确地刻画输入文本（单句或语句对）的整体信息，为后续的微调任务提供更好的模型参数初始值。最后的实验表明 BERT 模型的有效性，并在 11 项 NLP 任务中夺得 SOTA 结果。
+
+\begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/bert1}
 \caption{BERT（Bidirectional Encoder Representations from Transformers）模型输入示意图。}
 \label{fig:bert1}
 \end{figure}
 
+BERT 相较于原来的 RNN、LSTM 可以做到并发执行，同时提取词在句子中的关系特征，并且能在多个不同层次提取关系特征，进而更全面反映句子语义。相较于 word2vec，其又能根据句子上下文获取词义，从而避免歧义出现。同时缺点也是显而易见的，模型参数太多，而且模型太大，少量数据训练时，容易过拟合。
+
+从准确率上来看，BERT 利用更深的模型，以及海量的语料，得到的 embedding 表示，来做下游任务时的准确率显著高于 word2vec。从方法的意义角度来说，BERT 的重要意义在于给大量的 NLP 任务提供了一个泛化能力很强的预训练模型，而仅仅使用 word2vec 产生的词向量表示，不仅能够完成的任务比 BERT 少了很多，而且很多时候直接利用 word2vec 产生的词向量表示给下游任务提供信息，下游任务的表现不一定会很好，甚至会比较差。
+
+
 \subsection{模型结构}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/clip1}
 \caption{CLIP（Contrastive Language-Image Pre-training）模型结构示意图。}
@@ -539,7 +664,7 @@ l(i,j)=-\log\frac{\exp(s_{i,j})}{\sum_{k=1}^{N} \mathbf{1}_{\left[k \ne i\right]
 
 \subsubsection{图像文本编码}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/clip2}
 \caption{CLIP模型推理——文本检索}
@@ -567,7 +692,7 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 
 通常，当一块GPU的内存不足时，可以采用多GPU进行分布式训练。将一个大的Batch均摊到多块GPU上，计算完梯度后再汇总，进行梯度下降，如图 \ref{fig:grad} 所示。然而，分布式训练会带来额外的通讯与同步开销，且成本高昂。
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/grad}
 \caption{分布式训练示意图。}
@@ -577,8 +702,11 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 
 这个时候，梯度累积（Gradient Accumulation）可以作为一种简单的解决方案来解决这个问题。梯度累积是一种不需要额外硬件资源就可以增加批量样本数量（Batch Size）的训练技巧。这是一个通过时间换空间的优化措施，它将多个Batch训练数据的梯度进行累积，在达到指定累积次数后，使用累积梯度统一更新一次模型参数，以达到一个较大Batch Size的模型训练效果。累积梯度等于多个Batch训练数据的梯度的平均值。
 
-所谓梯度累积过程，其实很简单，我们梯度下降所用的梯度，实际上是多个样本算出来的梯度的平均值，以batch\_size=1024为例，你可以一次性算出1024个样本的梯度然后平均，我也可以每次算64个样本的平均梯度，然后缓存累加起来，算够了16次之后，然后把总梯度除以16，然后才执行参数更新。当然，必须累积到了16次之后，用16次的平均梯度才去更新参数，不能每算64个就去更新一次，不然就是batch\_size=64了。该过程可以由以下列表描述：
+所谓梯度累积过程，其实很简单，我们梯度下降所用的梯度，实际上是多个样本算出来的梯度的平均值，以batch\_size=1024为例，你可以一次性算出1024个样本的梯度然后平均，我也可以每次算64个样本的平均梯度，然后缓存累加起来，算够了16次之后，然后把总梯度除以16，然后才执行参数更新。当然，必须累积到了16次之后，用16次的平均梯度才去更新参数，不能每算64个就去更新一次，不然就是batch\_size=64了。
 
+上述整个过程可以由以下步骤描述：
+
+\medskip
 \begin{enumerate}
 \item 正向传播，出入数据，得到预测结果;
 \item 根据预测结果与label，计算损失值;
@@ -586,14 +714,14 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 \item 重复上面步骤，不清空梯度，将梯度累加;
 \item 梯度累加达到固定次数之后，更新参数，然后将梯度清零.
 \end{enumerate}
+\medskip
 
 总结来讲，梯度累积就是每计算一个batch的梯度，不进行清零，而是做梯度的累加，当累加到一定的次数（accumulation\_steps）之后，再更新网络参数，然后将梯度清零。通过这种参数延迟更新的手段，可以实现与采用大batch size相近的效果。在平时的实验过程中，我一般会采用梯度累加技术，大多数情况下，采用梯度累加训练的模型效果，要比采用小batch size训练的模型效果要好很多。
 
 \subsubsection{掩码特征学习}
 
-我们借鉴了FLIP模型的图像掩码策略，对CLIP模型进行改进。我们首先将图像划分为不重叠的 patch，随机屏蔽掉大部分（例如 50\% 或 75\%）的 patch，图像编码器仅应用于可见 patch。
+我们借鉴了FLIP模型的图像掩码策略，对CLIP模型进行改进。我们首先将图像划分为不重叠的 patch，随机屏蔽掉大部分（例如 50\% 或 75\%）的 patch，图像编码器仅应用于可见 patch，如图 \ref{fig:mask} 所示。
 
-与原始的CLIP模型相比，改进后的模型在同样的训练时间内可以学习更多的图像-文本对，并且ImageEncoder的显存使用也下降（mask掉50\%，显存消耗就下降50\%），这样在一定的硬件资源下就可以实现更大的batch size，而对比学习往往需要较大的batch size。同时，由于图像往往具有较强的冗余性，即使mask大部分图像，特征网络的学习性能并不会变差，反而由于更大的batch size而可以获得更好的性能。
 
 \begin{figure}[h]
 \centering
@@ -601,6 +729,8 @@ h_j = \mathrm{TextEncoder}\left(Text_j\right)
 \caption{掩码特征学习示意图。}
 \label{fig:mask}
 \end{figure}
+
+与原始的CLIP模型相比，改进后的模型在同样的训练时间内可以学习更多的图像-文本对，并且ImageEncoder的显存使用也下降（mask掉50\%，显存消耗就下降50\%），这样在一定的硬件资源下就可以实现更大的batch size，而对比学习往往需要较大的batch size。同时，由于图像往往具有较强的冗余性，即使mask大部分图像，特征网络的学习性能并不会变差，反而由于更大的batch size而可以获得更好的性能。
 
 综上，FLIP使用类似MAE模型的掩码输入策略，减少了编码序列的长度，极大地节省了显存的消耗量，使得我们可以使用更大的batch size进行训练，以获得更佳的泛化性能。
 
@@ -662,7 +792,7 @@ O=P^{\mathrm{dropped}}V\in\mathbb{R}^{N\times d}
 \begin{table}[h]
 \centering
 \tabcolsep=1.5em
-\renewcommand\arraystretch{1.5}
+\renewcommand\arraystretch{1.35}
 \caption{\textbf{“零样本”}测试结果——\textbf{图像检索}}
 \vspace{1em}
 \begin{tabular}{c|cccc}
@@ -688,23 +818,15 @@ O=P^{\mathrm{dropped}}V\in\mathbb{R}^{N\times d}
 \end{table}
 
 
-观察图 \ref{fig:pretrainmetric1} 可以发现，在最初几个预训练回合中，各项评估指都有明显的增长；而随着预训练回合数的增加，精度变化趋于平缓，最终收敛到一个较高的值。
-
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.9\linewidth]{figures/pretrain_metric1}
-\caption{“零样本”测试结果收敛情况——图像检索}
-\label{fig:pretrainmetric1}
-\end{figure}
-
-
 \paragraph{文本检索}
+
+与图像检索类似，我们按照章节 \ref{infer} 中描述的方法，使用基于公共数据集预训练的模型，在比赛数据集的T2I验证集上进行测试。最终，得到的评估指标如表 \ref{tbl:Zero2} 所示。同时，图 \ref{fig:pretrainmetric2} 直观地展示了各个epoch之间的精度差异。
+
 
 \begin{table}[h]
 \centering
 \tabcolsep=1.5em
-\renewcommand\arraystretch{1.5}
+\renewcommand\arraystretch{1.35}
 \caption{\textbf{“零样本”}测试结果——\textbf{文本检索}}
 \vspace{1em}
 \begin{tabular}{c|cccc}
@@ -715,19 +837,32 @@ O=P^{\mathrm{dropped}}V\in\mathbb{R}^{N\times d}
     \Xcline{1-1}{0.4pt}
     \Xhline{1.5pt}
 
-    2 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    2 epochs & {0.2566} & {0.3662} & {0.4426} & {0.3551} \\
     \Xhline{0.4pt}
-    4 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    4 epochs & {0.3912} & {0.5396} & {0.6078} & {0.5129} \\
     \Xhline{0.4pt}
-    6 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    6 epochs & {0.4642} & {0.6386} & {0.7024} & {0.6017} \\
     \Xhline{0.4pt}
-    8 epochs & {0.3814} & {0.5800} & {0.6562} & {0.5392} \\
+    8 epochs & {0.4934} & {0.6924} & {0.7538} & {0.6465} \\
     \Xhline{0.4pt}
-    10 epochs & {0.5156} & {0.7094} & {0.7712} & {0.6654} \\
+    10 epochs & {0.5012} & {0.6972} & {0.7604} & {0.6529} \\
     
     \Xhline{2pt}
 \end{tabular} \label{tbl:Zero2}
 \end{table}
+
+
+我们根据表 \ref{tbl:Zero1} 和表 \ref{tbl:Zero2} 的数据绘制了模型在预训练阶段的精度迭代曲线，如图 \ref{fig:pretrainepoch} 所示。不难发现，在预训练初期，模型在两项任务中的表现一般；但随着预训练回合的增加，模型的精度先快速增长，再趋于平衡。最终，模型在两个任务上的平均召回率（MR）收敛于一个较高的值。
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/pretrain_epoch}
+\caption{预训练精度迭代曲线}
+\label{fig:pretrainepoch}
+\end{figure}
+
+
 
 \subsection{模型微调}
 
@@ -736,38 +871,129 @@ O=P^{\mathrm{dropped}}V\in\mathbb{R}^{N\times d}
 在数据集准备好之后，我们将其划分为训练集、验证集和测试集，以便在训练过程中监控模型的性能，并最终评估其泛化能力。同时我们采用交叉验证的方法，以确保模型在不同的数据子集上都能保持一致的性能。
 \subsubsection{模型微调}
 
-预训练：
+\paragraph{微调环境}微调环境与预训练阶段保持一致，使用Ubuntu20.04操作系统，基于PyTorch1.12深度学习框架实现所提出的改进CLIP模型，并在4块NVIDIA RTX4090D 24G显卡上对该模型预进行分布式训练。
 
-800w数据集。
+\paragraph{微调参数设置}微调阶段，我们去除动量机制，将优化器切换为随机梯度下降（SGD），同时将初始学习率减小十倍，设置为$5 \times 10^{-6}$，并不再使用掩码特征学习策略。除此之外的设置与预训练阶段保持一致。
 
-Batch size=32，累计梯度系数=16，RTX4090d 24G * 4，等价Batch size=2048，141分钟/epoch。
+\paragraph{微调效率}微调时采用十折交叉验证策略，共计微调5个Epoch，共计耗时6.2小时，平均每个Epoch耗时7.4分钟。同时，每张GPU的最大显存使用量与预训练阶段一致。
 
-训练显存消耗，20.5G/24G 每张卡
-
-
-微调：
-
-40w数据集。
-
-Batch size 2048，四卡 4090，7.3分钟/epoch
-
-十折交叉验证
 
 \subsubsection{微调结果测试}
 
+\paragraph{图像检索}首先，基于十折交叉验证策略，重复了十次微调实验，并将结果平均值汇总，得到微调模型在验证集上的性能评估指标，如表 \ref{tbl:Fine1} 所示。
+
+\begin{table}[h]
+\centering
+\tabcolsep=1.5em
+\renewcommand\arraystretch{1.35}
+\caption{微调测试结果——\textbf{图像检索}}
+\vspace{1em}
+\begin{tabular}{c|cccc}
+    \Xhline{2pt}
+
+    回合 $\backslash$ 评估指标 & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MR} \\
+    
+    \Xcline{1-1}{0.4pt}
+    \Xhline{1.5pt}
+
+    0 epoch & {0.5156} & {0.7094} & {0.7712} & {0.6654} \\
+    \Xhline{0.4pt}
+    1 epoch & {0.5776} & {0.7630} & {0.8194} & {0.7200} \\
+    \Xhline{0.4pt}
+    2 epochs & {0.5802} & {0.7684} & {0.8230} & {0.7239} \\
+    \Xhline{0.4pt}
+    3 epochs & {0.5856} & {0.7676} & {0.8238} & {0.7257} \\
+    \Xhline{0.4pt}
+    4 epochs & {0.5840} & {0.7682} & {0.8240} & {0.7254} \\
+    \Xhline{0.4pt}
+    5 epochs & {0.5856} & {0.7694} & {0.8240} & {0.7263} \\
+    
+    \Xhline{2pt}
+\end{tabular} \label{tbl:Fine1}
+\end{table}
+
+为了进一步分析各个微调回合的精度收益情况，我们根据表 \ref{tbl:Fine1} 的数据绘制了验证集精度随微调回合数的变化曲线，如图 \ref{fig:finetunemetric1} 所示。
+
+由表 \ref{tbl:Fine1} 和图 \ref{fig:finetunemetric1} 可以看出，基于预训练结果微调时，第一个回合由于引入了与比赛验证集分布一致的比赛训练集，其在验证集上的性能表现迎来了巨大的提升。然而，当微调继续进行时，模型的精度提升已经非常细微，到第三个回合后，模型的精度已经开始震荡。
+
 \begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/finetune_metric1}
+\caption{问题一验证集精度随微调回合数的变化曲线}
+\label{fig:finetunemetric1}
+\end{figure}
+
+
+\paragraph{文本检索}对于问题二，我们同样基于十折交叉验证策略，重复了十次微调实验，并将结果平均值汇总，得到微调模型在验证集上的性能评估指标，如表 \ref{tbl:Fine2} 所示。
+
+\begin{table}[h]
+\centering
+\tabcolsep=1.5em
+\renewcommand\arraystretch{1.35}
+\caption{微调测试结果——\textbf{文本检索}}
+\vspace{1em}
+\begin{tabular}{c|cccc}
+    \Xhline{2pt}
+
+    回合 $\backslash$ 评估指标 & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MR} \\
+    
+    \Xcline{1-1}{0.4pt}
+    \Xhline{1.5pt}
+
+    0 epoch & {0.5012} & {0.6972} & {0.7604} & {0.6529} \\
+    \Xhline{0.4pt}
+    1 epoch & {0.5636} & {0.7584} & {0.8096} & {0.7105} \\
+    \Xhline{0.4pt}
+    2 epochs & {0.5690} & {0.7568} & {0.8110} & {0.7123} \\
+    \Xhline{0.4pt}
+    3 epochs & {0.5732} & {0.7590} & {0.8140} & {0.7154} \\
+    \Xhline{0.4pt}
+    4 epochs & {0.5724} & {0.7626} & {0.8118} & {0.7156} \\
+    \Xhline{0.4pt}
+    5 epochs & {0.5734} & {0.7624} & {0.8140} & {0.7166} \\
+    
+    \Xhline{2pt}
+\end{tabular} \label{tbl:Fine2}
+\end{table}
+
+同样的，我们根据表 \ref{tbl:Fine2} 的数据绘制了验证集精度随微调回合数的变化曲线，如图 \ref{fig:finetunemetric2} 所示。
+
+由表 \ref{tbl:Fine2} 和图 \ref{fig:finetunemetric2} 可以看出，基于预训练结果微调时，第一个回合由于引入了与比赛验证集分布一致的比赛训练集，其在验证集上的性能表现迎来了巨大的提升。然而，当微调继续进行时，模型的精度提升已经非常细微，到第三个回合后，模型的精度已经开始震荡。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/finetune_metric1}
+\caption{问题二验证集精度随微调回合数的变化曲线}
+\label{fig:finetunemetric2}
+\end{figure}
+
+
+\paragraph{测试集推理}
+接下来，我们将微调得到的模型应用于问题一的测试集中，得到了最终的结果。
+
+图 \ref{fig:example11} 和图 \ref{fig:example12} 分别展示了问题一结果的两个示例。在示例一中，我们以文本“开学第一课~军训~你成长了吗?”对所有图像进行检索，最终得到五幅最相似的图像。观察图 \ref{fig:example11} 中的图像，发现它们都与军训这一主题高度相关，所以该结果比较符合人的知觉，效果较好。
+
+\begin{figure}[h!]
 \centering
 \includegraphics[width=1.\linewidth]{figures/example11}
 \caption{问题一结果示例1}
 \label{fig:example11}
 \end{figure}
 
-\begin{figure}[h]
+在示例二中，我们以文本“华为用这一招让美国始料未及:手机和5G基站都拒绝美国”对所有图像进行检索，同样得到五幅符合要求的图像。其中，第一幅图像内容是5G基站；第二、三幅是描述美国对通讯企业制裁的插画；第四幅图绘制了一个巨大的“5G”标语以及通讯设备；最后一幅是印着中国国企的芯片。这些图像都与“5G”、“美国制裁”、“中国科技发展”相关。
+
+\begin{figure}[h!]
 \centering
 \includegraphics[width=1.\linewidth]{figures/example12}
 \caption{问题一结果示例2}
 \label{fig:example12}
 \end{figure}
+
+
+与问题一类似，我们将微调得到的模型应用于问题二的测试集中，得到了最终的结果。图 \ref{fig:example21} 和图 \ref{fig:example22} 分别展示了问题二结果的两个示例。
+
+在示例一中，我们以一幅布偶猫的照片对所有文本进行检索。画面中，一只猫趴在桌子一边，另一边则是写有“全价猫粮”的包装袋，这很可能是一封猫粮的广告。最终，我们检索得到五段最相关的文本，如图 \ref{fig:example21} 所示。第一段文本显然符合图片的意思，是猫粮的广告词；后面四段文本虽然没有直接涉及猫粮，但都与猫、宠物等主题高度相关，较为符合题意。
+
 
 \begin{figure}[h]
 \centering
@@ -775,6 +1001,9 @@ Batch size 2048，四卡 4090，7.3分钟/epoch
 \caption{问题二结果示例1}
 \label{fig:example21}
 \end{figure}
+
+而在示例二中，我们则以一幅仓鼠的照片对所有文本进行检索。画面中，一只仓鼠卡在一间宠物小屋的窗户里向外探头。图 \ref{fig:example22} 展示了检索得到五段最相关的文本。前三段文本比较符合图片的意思，都是关于仓鼠和宠物的话题；第五段文本以第一人称描述困意，与图中仓鼠的神态也较为符合。
+
 
 \begin{figure}[h]
 \centering
@@ -786,13 +1015,79 @@ Batch size 2048，四卡 4090，7.3分钟/epoch
 
 \subsection{结果分析}
 
-\subsubsection{预训练结果}
+\subsubsection{预训练收益}
 
-\subsubsection{微调结果}
+为了直观分析由预训练带来的验证集精度提升，我们分别针对图像检索任务和文本检索任务，绘制了各个预训练回合下的评估指标情况，如图 \ref{fig:pretrainmetric1} 和图 \ref{fig:pretrainmetric2} 所示。
 
-\subsubsection{有效性验证}
+观察图 \ref{fig:pretrainmetric1} 和图 \ref{fig:pretrainmetric2}，可以发现，在最初几个预训练回合中，各项评估指都有明显的增长；而随着预训练回合数的增加，精度变化趋于平缓，最终收敛到一个较高的值。这表示，从预训练中获取的精度提升是有限度的，为了继续提高在比赛数据集的表现，我们必须在比赛训练集上进行微调。
+
+
+\begin{figure}[t!]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/pretrain_metric1}
+\caption{\textbf{“零样本”}测试结果收敛情况——\textbf{图像检索}}
+\label{fig:pretrainmetric1}
+\end{figure}
+
+
+\begin{figure}[t!]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/pretrain_metric2}
+\caption{\textbf{“零样本”}测试结果收敛情况——\textbf{文本检索}}
+\label{fig:pretrainmetric2}
+\end{figure}
+
+
+\subsubsection{微调有效性}
+
+为了验证“预训练—微调”策略的有效性，我们对比了三种训练模式得到的模型——仅预训练、直接训练，以及预训练+微调。这三种模式下，图像检索任务和文本检索任务在比赛验证集上的性能表现分别如图 \ref{fig:vs1} 和图 \ref{fig:vs1} 所示。
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/vs1}
+\caption{三种训练模式下的图像检索任务性能比较}
+\label{fig:vs1}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/vs1}
+\caption{三种训练模式下的文本检索任务性能比较}
+\label{fig:vs2}
+\end{figure}
+
+根据图 \ref{fig:vs1} 中的结果，我们可以清晰地得到结论，对于图文检索任务，预训练+微调训练的效果优于直接训练或者仅预训练，且性能差距非常显著。
+
 
 \subsection{模型总结}
+
+本文提出了一种基于大规模预训练CLIP模型微调的图文检索方法。下面是该模型的优点和缺点的总结：
+
+\paragraph{模型优点：}
+
+\begin{enumerate}
+\item \textbf{统一建模：}该模型通过将图像检索和文本检索问题转化为图像与文本的相似度衡量问题，实现了统一的建模框架。这种统一建模使得模型能够处理复杂的多模态数据，提高了检索的效果和准确性。
+
+\item \textbf{多模态特征融合：}该模型利用CLIP模型的对比学习方法，将图像和文本映射到同一嵌入空间，实现了图像与文本的多模态特征融合。这种融合使得模型能够计算不同模态数据之间的余弦相似度，从而实现高效的图文互检索功能。
+
+\item \textbf{预训练与微调：}该模型通过在大量公共数据集上进行预训练，得到了一个泛化性能强大的基线模型。同时，通过针对比赛数据集的数据增强和微调，进一步提升了模型的性能表现。预训练和微调策略的应用使得模型能够适应特定任务并取得显著的性能提升。
+
+\item \textbf{效率优化：}所提出的方法对原始CLIP进行了一系列效率优化，包括使用累积梯度模拟大的训练Batch，得到更加的收敛性能；利用掩码特征学习减少训练时的显存占用，同时学习更加鲁棒的特征；使用Flash Attention，从内存分布层面提高运算效率等。
+
+\item \textbf{高性能表现：}基于所提出的模型，在图像检索和文本检索任务中，取得了较高的R@5精度，即在前5个检索结果中的准确率。这表明该模型在处理图文检索问题上具有较好的性能和效果。
+\end{enumerate}
+
+\paragraph{模型不足：}
+
+\begin{enumerate}
+\item \textbf{数据集依赖性：}该模型的性能和效果受到所使用的数据集的影响。虽然作者使用了大规模的预训练数据集和增强数据集，但模型的泛化能力仍然可能受到数据集的局限性。
+
+\item \textbf{可解释性有限：}尽管该模型在图文检索任务上表现出色，但由于其基于深度学习模型的黑盒特性，其内部的决策过程和解释性有限。这使得模型的可解释性和可理解性不如传统的基于规则或特征工程的方法。
+\end{enumerate}
+
+\medskip
+
+总体而言，该论文提出的基于大规模预训练CLIP模型微调的图文检索方法在处理多模态数据和提高检索精度方面具有优势。然而，它也面临数据集依赖性和可解释性有限等挑战。
 
 
 \cite{*}
